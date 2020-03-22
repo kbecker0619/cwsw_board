@@ -1,28 +1,20 @@
 /** @file
  *	@brief	Board Support Package Header File for "none" board - Windows or Linux desktop.
  *
- *	Description:
- *
- *	Copyright (c) 2018 Kevin L. Becker. All rights reserved.
+ *	\copyright
+ *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
  *	Original:
  *	Created on: Dec 21, 2017
  *	Author: kbecker
- *
- *	Current:
- *	$Revision: $
- *	$Date: $
  */
 
 #ifndef CWSW_BOARD_H
 #define CWSW_BOARD_H
 
-
 // ============================================================================
 // ----	Include Files ---------------------------------------------------------
 // ============================================================================
-
-#include "projcfg.h"
 
 // ----	System Headers --------------------------
 #include <stdio.h>
@@ -31,14 +23,16 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-/* note: while i personally strongly agree with the coding guideline that says,
- * "no path statements in include statements", i am doing that here in my early
+#include "projcfg.h"
+#include "cwsw_arch.h"
+/* note: while i myself strongly agree with the coding guideline that says,
+ * "no path statements in include statements", i am doing that here in my
  * attempt to support multiple MCU architectures and multiple boards; in my idea,
  * the include paths specified on the command line should point to the correct
  * board family, or board, and the published structure should be identical
  * across all boards.
  *
- * of course there are other, perhaps better, ways to do this, but this is my path during very early
+ * of course there are other, perhaps better, ways to do this, but this is my path during
  * development of my system.
  */
 #include "peripheral/ports/ports_api.h"
@@ -58,7 +52,6 @@ extern "C" {
 // ============================================================================
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
-#define CWSW_BOARD_H_REVSTRING "$Revision: 0123 $"
 
 /** USB VBUS Switch State.
  * Summary:
@@ -160,7 +153,7 @@ typedef enum eBoardLeds				tBoardLed;
 // ----	Public API ------------------------------------------------------------
 // ============================================================================
 
-// --- discrete functions -----------------------------------------------------
+// --- discrete functions --------------------------------------------------- {
 
 /* Function:
 	void Cwsw_Board__UsbVbusSwitchStateSet(tBrdUsbVbusSwitchState state);
@@ -237,8 +230,9 @@ extern void Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state);
 */
 //extern tBrdUserSwitchState BSP_SwitchStateGet(tBrdUserSwitch bspSwitch);
 
+// --- /discrete functions -------------------------------------------------- }
 
-// --- targets for get/set/etc macros -----------------------------------------
+// --- targets for Get/Set APIS --------------------------------------------- {
 
 /* Target for some of the expansions to the Set(Cwsw_Board, Resource, xxx) interface */
 #define Cwsw_Board__Set_UsbVbus(value)			Cwsw_Board__UsbVbusSwitchStateSet(value)
@@ -253,6 +247,8 @@ extern void Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state);
 /* Target for some of the expansions to the Get(Cwsw_Board, Resource) interface. */
 #define Cwsw_Board__Get_kBrdSwitch1()			PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_3)
 #define Cwsw_Board__Get_kBoardLed1()			PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_0)
+
+// --- /targets for Get/Set APIS -------------------------------------------- }
 
 
 #ifdef	__cplusplus

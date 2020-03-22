@@ -1,4 +1,0 @@
-cwsw_board_common.h DO NOT directly include this file; instead, include the main API header from "this" board's folder
-descript.ion 7-Zip file that provides file commentary
-none No board: Desktop PC (Linux or Windows)
-readme.md This folder is the container for the various boards supported by this component

@@ -2,18 +2,12 @@
  *	@brief	Board Support Package implementation for the "none" board (i.e., desktop computer
  *	running Windows or Linux).
  *
- *	Description:
- *
- *
- *	Copyright (c) 2019 Kevin L. Becker. All rights reserved.
+ *	\copyright
+ *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
  *	Original:
  *	Created on: Dec 27, 2017
  *	Author: kbecker
- *
- *	Current:
- *	$Revision: $
- *	$Date: $
  */
 
 // ============================================================================
@@ -26,11 +20,11 @@
 
 // ----	Project Headers -------------------------
 #include "cwsw_lib.h"
+#include "cwsw_arch.h"
 #include "peripheral/ports/ports_api.h"
 #include "cwsw_eventsim.h"				/* tEventPayload */
 
 // ----	Module Headers --------------------------
-#include "cwsw_arch.h"
 #include "cwsw_board.h"
 
 
@@ -49,7 +43,6 @@
 // ============================================================================
 // ----	Module-level Variables ------------------------------------------------
 // ============================================================================
-static char const * const bsp_RevString = "$Revision: 0123 $";
 
 static bool initialized = false;
 
@@ -66,6 +59,7 @@ static bool initialized = false;
 void
 Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state)
 {
+	UNUSED(state);
 	/* Enable or disable the VBUS switch */
 	/* in this instance, the logical value passed in is of the same polarity as
 	 * the physical state required to enable or disable the USB V switch.
@@ -79,16 +73,11 @@ Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state)
 // ============================================================================
 
 /** Initialize the board.
- * This function "connects" the board to the CPU.
- * It knows nothing about the application; sitting just above this file, would be the "bsp" (to
- * slightly abuse that term), which connects the application to the board.
- * @return error code, where 0 means no problem.
+ *	This function "connects" the board to the CPU.
+ *	It knows nothing about the application; sitting just above this file, would be the "bsp" (to
+ *		slightly abuse that term), which connects the application [framework] to the board.
  *
- * i'm on the fence about embedding a dependency here into the architecture - on the one hand, the
- * BSP (next layer up) should manage this, but on the other hand, the board depends so much upon
- * the capabilities of the MCU on that board, that it doesn't make much sense to execute software
- * to initialize the board, when the micro responsible for executing that very self-same software
- * hasn't yet been initialized.
+ *	@returns error code, where 0 (#kErr_Lib_NoError) means no problem.
  */
 uint16_t
 Cwsw_Board__Init(void)
@@ -97,7 +86,7 @@ Cwsw_Board__Init(void)
 
 	if(!Get(Cwsw_Arch, Initialized))
 	{
-		PostEvent(evNotInitialized, ev);
+		PostEvent(evNotInit, ev);
 		return 1;
 	}
 
@@ -107,9 +96,9 @@ Cwsw_Board__Init(void)
 	#endif
 
 	dbg_printf(
-			"\tModule ID %i\t%s\t%s\n"
+			"\tModule ID %i\t%s\t\n"
 			"\tEntering %s()\n\n",
-			Cwsw_Board, __FILE__, bsp_RevString,
+			Cwsw_Board, __FILE__,
 			__FUNCTION__);
 
 	#if defined(__GNUC__)	/* --- GNU Environment ------------------------------ */
