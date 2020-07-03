@@ -33,13 +33,19 @@ extern "C" {
 // ============================================================================
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
-#define CWSW_BOARD_CWSW_BOARD_COMMON_H__REVSTRING "$Revision: 0123 $"
 
 /** Logical values for the LEDs and switches.
  *	Note the actual wiring on the board, or the polarity of the driver, might be inverted;
  *	that connection is made at the driver level, not the board level.
  */
 enum eDO_Logical_Values { kLogicalOff, kLogicalOn };
+
+enum eErrorCodes_Board {
+	kErr_Bsp_NoError = kErr_Lib_NoError,
+	kErr_Bsp_NotInitialized,
+	kErr_Bsp_BadParm,
+	kErr_Bsp_InitFailed
+};
 
 
 // ============================================================================

@@ -105,12 +105,6 @@ Cwsw_Board__Init(void)
 	#pragma GCC diagnostic pop
 	#endif
 
-	Set(Cwsw_Board, UsbVbus, kLogicalOff);	// Cwsw_Board__UsbVbusSwitchStateSet()
-	SET(kBoardLed1, kLogicalOff);
-	SET(kBoardLed2, kLogicalOff);
-	SET(kBoardLed3, kLogicalOff);
-
-	initialized = true;
 	return 0;
 }
 

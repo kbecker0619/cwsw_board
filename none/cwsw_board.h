@@ -23,8 +23,8 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-#include "projcfg.h"
 #include "cwsw_arch.h"
+
 /* note: while i myself strongly agree with the coding guideline that says,
  * "no path statements in include statements", i am doing that here in my
  * attempt to support multiple MCU architectures and multiple boards; in my idea,
