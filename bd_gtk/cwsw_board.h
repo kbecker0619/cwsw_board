@@ -69,15 +69,22 @@ extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
  */
 enum { bd_gtk };		/* Component ID for Event Queue */
 
-/** Target symbol for Get(Cwsw_EvQ, xxx) interface */
+/** Target for `Get(Cwsw_EvQ, xxx)` interface */
 #define bd_gtk__Get(resource)		bd_gtk__Get_ ## resource()
 
-/** Ultimate target for `SET(kBoardLed1, kLogicalOff);` */
+/** Target for `SET(kBoardLed1, kLogicalOff);`
+ *	This function is equivalent to an arch-layer function that directly writes to the ports that
+ *	drive the output "LED1".
+ *	@param [in]	value	On or off indication. In this implementation, there is no notion of "tristate".
+ *	@note This is a "local" API, not designed to work across components.
+ */
 extern void Cwsw_Board__Set_kBoardLed1(bool value);
 
 
 /** Target 1 for TM(tmr) */
-#define GET_tmrMyStateTimer()	Cwsw_GetTimeLeft(tmrMyStateTimer)
+#define GET_tmrMyStateTimer()		Cwsw_GetTimeLeft(tmrMyStateTimer)		/* timer local to one SM state */
+#define GET_tmrPressedStateTimer()	Cwsw_GetTimeLeft(tmrPressedStateTimer)	/* timer local to one SM state */
+
 // ---- /Targets for Get/Set APIs ------------------------------------------- }
 
 

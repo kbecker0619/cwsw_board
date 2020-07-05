@@ -218,7 +218,7 @@ void
 Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 {
 	extern void Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx);
-	pOsEvqx = pEvqx;	// save for heartbeat usage
+	pOsEvqx = pEvqx;		// save for heartbeat usage
 	Btn_SetQueue(pEvqx);
 	gtk_main();
 }
@@ -226,6 +226,7 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 // ---- /General Functions -------------------------------------------------- }
 
 // ---- Common API / Highly Customized -------------------------------------- {
+
 
 void
 Cwsw_Board__Set_kBoardLed1(bool value)

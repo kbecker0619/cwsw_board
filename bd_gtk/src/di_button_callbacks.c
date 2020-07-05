@@ -26,6 +26,16 @@
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
+//  consecutive 1s:     8          7        6       5      4     3   2  1 (meaningless noise to fill 64 bits)
+//	noisy input:	1111 1111 0111 1111 0111 1110 1111 1011 1101 1101 1010 0000 0011 1111 0000 0001
+#define noisypatterna	0xFF7F7EFBDDA03F01
+
+//	consecutive 0s:          8          7        6        5     4    3    2  1
+// noisy input:		1000 0000 0000 1000 0000 1000 0001 0000 0100 0010 0010 01010
+//					0x1 0010 1020 844A
+#define noisypatternb	0x100101020844A
+
+
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
 // ============================================================================
@@ -39,7 +49,7 @@
 // ============================================================================
 
 static uint64_t buttoninputbits[8]	= {0};
-static uint32_t buttonbitreadidx[8] = {0};	// only need a 5-bit var for this index value, but to represent MVP, use 32-bit size-of-native-register var
+static uint32_t buttonstatus = 0;	// bitmapped image of current button state. 32 bits simply to avoid compiler warnings.
 
 GObject *btn0		= NULL;
 GObject *btn1		= NULL;
@@ -62,6 +72,7 @@ GObject *btn3		= NULL;
 void
 cbUiButtonPressed(GtkWidget *widget, gpointer data)
 {
+	static bool noisypattern = false;
 	uint32_t idx = 0;
 	UNUSED(data);
 
@@ -83,19 +94,23 @@ cbUiButtonPressed(GtkWidget *widget, gpointer data)
 		return;
 	}
 
+	// toggle back and forth between two noisy sets of inputs.
+	// - the 1st is 64 bits of noise, the tail of which is 8 "on" bits (hence a debounced button press).
+	// - the 2nd intentionally fails qualification for a button press; remember that this function
+	//	"sets" the pressed indicator, we we have to book-end the embedded 0 bits with "1" markers to
+	// make the detection algorithms work.
+
 	// call into the next layer down (arch)
 	// for exploration, we'll use 8 consecutive bits of the same value to detect a state change
-	//  consecutive 1s:     8          7        6       5      4     3   2  1
-	//	noisy input:	1111 1111 0111 1111 0111 1110 1111 1011 1101 1101 1010 0000 0011 1111 0000 0001
-	//					0x‭FF7F7EFBDDA03F01‬
-	// create a noisy bit stream and pass it to the DI-level button-reading task.
-	buttoninputbits[idx] += 0xFF7F7EFBDDA03F01;
+	buttoninputbits[idx] = noisypattern ? noisypatterna : noisypatternb; noisypattern = !noisypattern;
+	BIT_SET(buttonstatus, idx);
 	return;
 }
 
 void
 cbUiButtonReleased(GtkWidget *widget, gpointer data)
 {
+	static bool noisypattern = false;
 	uint32_t idx = 0;
 	UNUSED(data);
 	// 'twould rather use a switch statement, but can't b/c GCC complains about a pointer not be a scalar type
@@ -114,13 +129,14 @@ cbUiButtonReleased(GtkWidget *widget, gpointer data)
 	}
 
 	// call into the next layer down (arch)
-	// for exploration, we'll use 8 consecutive bits of the same value to detect a state change
-	//	consecutive 0s:     8          7        6        5     4    3    2  1
-	// noisy input:		0111 1111 0000 0011 1111 1010 0
-	// noisy input:		0000 0000 1000 0000 1000 0001 0000 0100 0010 0010 01010
-	//					0x101020844A
-	// create a noisy bit stream and pass it to the DI-level button-reading task.
-	buttoninputbits[idx] += 0x101020844A;
+	buttoninputbits[idx] = noisypattern ? noisypatternb : noisypatterna; noisypattern = !noisypattern;
+	BIT_CLR(buttonstatus, idx);
+
+	/* running commentaire, to be moved to more formal documentation.
+	 * - if the DI button SM is in the "released" state, the 1st 1 bit will provoke a transition to
+	 *   the debounce-press state; after the bit stream settles down to all 0s, it'll return to the
+	 *   released state.
+	 */
 	return;
 }
 
@@ -130,5 +146,11 @@ di_read_next_button_input_bit(uint8_t idx)
 {
 	bool retval = ((buttoninputbits[idx] & 1) != 0);
 	buttoninputbits[idx] /= 2;
+	if((!retval) && (!buttoninputbits[idx]))
+	{
+		// can't seem to get the GTK API to work. fall back to local image of button state.
+//		retval = gtk_toggle_button_get_active((GtkToggleButton *)btn0);	// todo: return state of last button pressed
+		retval = BIT_TEST(buttonstatus, idx);
+	}
 	return retval;
 }
