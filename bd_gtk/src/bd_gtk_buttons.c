@@ -468,10 +468,12 @@ static tTransitionTable tblTransitions[] = {
 	{ stDebouncePress,		evButton_Task,			kButtonNone,	kReasonNone,			stButtonReleased,	NullTransition		},	// debounced input is 0. no need to post event, since debounced state hasn't changed.
 
 	{ stButtonPressed,		evButton_Task,				0,			kReasonTimeout,			stButtonStuck,		NotifyBtnStateChg	},	// button stuck, go directly back to "stuck" state
+	// in the interests of simplicity (MVP), we'll jump directly back to the Released state.
+	//	we could insert another instance of the debouncer, but except for transition time, the end effect will be the same.
+	{ stButtonStuck,		evButton_Task,				0,			kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
 
 //	{ stButtonPressed,			evButton_Task,			kButton0,		kReasonDebounced,		stDebounceRelease, NullTransition	},	// detected a possible button release, go to debounce state
 
-//	{ stButtonStuck,		evButton_Task,				0,			kReasonButtonUnstuck,	stButtonReleased,		NotifyBtnStateChg	},
 
 };
 
