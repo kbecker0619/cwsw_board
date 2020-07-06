@@ -107,9 +107,9 @@ stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 	static uint8_t read_bits;
 	switch(statephase++)
 	{
-	case kStateUninit: /* on 1st entry, execute on-entry action */
-	case kStateAbort: /* upon return to this state after previous normal exit, execute on-entry action */
-	default: /* for any unexpected value, restart this state. */
+	case kStateUninit:	/* on 1st entry, execute on-entry action */
+	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
+	default:			/* for any unexpected value, restart this state. */
 		evId = pev->evId;			// save exit Reason1
 		reason3 = kReasonDebounced;	// save default reason3
 		statephase = kStateNormal;	// reinitialize state's phase marker unilaterally
@@ -125,20 +125,20 @@ stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 
 	case kStateNormal:
 		// read next bit
-		read_bits *= 2;			// shift current bits left one position
+		read_bits *= 2;					// shift current bits left one position
 		read_bits = (uint8_t)(read_bits | di_read_next_button_input_bit(0));
 		if(read_bits == 0)
 		{
 			// debounce done, recognized as an open (released) button
 			evId = evButton_BtnReleased;
-			reason2 = kButton0;	// todo: identify which button.
+			reason2 = kButton0;			// todo: identify which button.
 			reason3 = kReasonDebounced;
 		}
 		else if(read_bits == 0xFF)
 		{
 			// debounce done, recognized as button press, advance to next state
 			evId = evButton_BtnPressed;
-			reason2 = kButton0;	// todo: identify which button.
+			reason2 = kButton0;			// todo: identify which button.
 			reason3 = kReasonDebounced;
 		}
 		else if(TM(tmrMyStateTimer))
@@ -236,16 +236,20 @@ stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 		break;
 
 	case kStateNormal:
-		if(!di_read_next_button_input_bit(0))
-		{
-			// stay in this state until we see a twitch on one of the button inputs.
-			//	note: in this iteration of this implementation, we're only reading "button" 0
-			--statephase;
-		}
-		else
-		{
-			evData = kButton0;	// todo: identify which button.
-		}
+		do {
+			// use local var so i can override it during debugging.
+			bool thisbit = di_read_next_button_input_bit(0);
+			if(!thisbit)
+			{
+				// stay in this state until we see a twitch on one of the button inputs.
+				//	note: in this iteration of this implementation, we're only reading "button" 0
+				--statephase;
+			}
+			else
+			{
+				evData = kButton0;	// todo: identify which button.
+			}
+		} while(0);
 		break;
 
 	case kStateExit:
@@ -297,22 +301,26 @@ stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 		break;
 
 	case kStateNormal:
-		if(!di_read_next_button_input_bit(0))
-		{
-			// button might have been released, go to debounce-release state to confirm
-			reason2 = kButton0;		// todo: identify which button.
-			reason3 = kReasonNone;
-		}
-		else if(TM(tmrPressedStateTimer))
-		{
-			// we've been too long in the pressed-button state, there might be a stuck button
-			reason2 = 0;
-			reason3 = kReasonTimeout;
-		}
-		else
-		{
-			--statephase;			// nothing of note happened, stay in this state
-		}
+		do {
+			// use local var so i can override it during debugging.
+			bool thisbit = di_read_next_button_input_bit(0);
+			if(!thisbit)
+			{
+				// button might have been released, go to debounce-release state to confirm
+				reason2 = kButton0;		// todo: identify which button.
+				reason3 = kReasonNone;
+			}
+			else if(TM(tmrPressedStateTimer))
+			{
+				// we've been too long in the pressed-button state, there might be a stuck button
+				reason2 = 0;
+				reason3 = kReasonTimeout;
+			}
+			else
+			{
+				--statephase;			// nothing of note happened, stay in this state
+			}
+		} while(0);
 		break;
 
 	case kStateExit:
@@ -472,7 +480,7 @@ static tTransitionTable tblTransitions[] = {
 	//	we could insert another instance of the debouncer, but except for transition time, the end effect will be the same.
 	{ stButtonStuck,		evButton_Task,				0,			kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
 
-//	{ stButtonPressed,			evButton_Task,			kButton0,		kReasonDebounced,		stDebounceRelease, NullTransition	},	// detected a possible button release, go to debounce state
+	{ stDebounceRelease,	evButton_BtnPressed,	kButton0,		kReasonDebounced,		stButtonPressed,	NullTransition		},
 
 
 };
