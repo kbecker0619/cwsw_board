@@ -60,7 +60,7 @@ enum { kTmButtonDebounceTime = tmr500ms + tmr100ms };
 enum { kButtonNone, kButton0, kButton1, };
 
 /// "Reason3" reasons for exiting a state.
-enum { kReasonNone, kReasonDebounced, kReasonTimeout, kReasonButtonUnstuck };
+enum { kReasonNone, kReasonTwitchNoted, kReasonDebounced, kReasonTimeout, kReasonButtonUnstuck };
 
 
 // ============================================================================
@@ -94,106 +94,118 @@ static const ptCwswSwAlarm pMyTimer = &Btn_tmr_ButtonRead;
 // ----	State Functions -------------------------------------------------------
 // ============================================================================
 
-extern bool di_read_next_button_input_bit(uint8_t idx);
+extern bool di_read_next_button_input_bit(uint32_t idx);
 
 static tStateReturnCodes
 stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase = kStateUninit;
-	static tCwswClockTics tmrMyStateTimer = 0;	// debounce time of 100 ms. if expired, mark as stuck button
-	static tEvQ_EventID evId;
-	static uint32_t reason2 = 0;
-	static uint32_t reason3 = kReasonNone;
-	static uint8_t read_bits;
-	switch(statephase++)
+	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	static tCwswClockTics tmrMyStateTimer[kNumberButtons] = {0}, tmrdebounce;
+	static tEvQ_EventID evId[kNumberButtons] = {0};
+	static uint32_t reason3[kNumberButtons] = {kReasonNone};
+	static uint8_t read_bits[kNumberButtons] = {0};
+	uint32_t thisbutton;
+
+	if(!pev)	{return 0;}
+	if(!pextra)	{return 0;}
+
+	thisbutton = pev->evData;
+	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
 	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
-		evId = pev->evId;			// save exit Reason1
-		reason3 = kReasonDebounced;	// save default reason3
-		statephase = kStateNormal;	// reinitialize state's phase marker unilaterally
+		evId[thisbutton] = pev->evId;				// save exit Reason1
+		statephase[thisbutton] = kStateOperational;	// reinitialize state's phase marker unilaterally
 
 		/* for this task, we assume the transition was provoked by a non-zero bit on the most recent
 		 * DI bit read. seed our debounce var with that 1st bit.
+		 * NOTE: his line is legacy from early development. its effect is that it allows recognition
+		 * of a a switch press after 8 consecutive bits, but requires 10 consecutive bits to
+		 * recognize a switch release (the 1st 0 read is thrown away, then it needs another one to
+		 * "clear" this seeding of the initial 1).
 		 */
-		read_bits = 1;
+		read_bits[thisbutton] = 1;
 
 		// start my state timer. remember, our call rate is 10 ms. 100ms == 10 bit readings, 640ms is 64 bit reads
-		Set(Cwsw_Clock, tmrMyStateTimer, kTmButtonDebounceTime);
+		Set(Cwsw_Clock, tmrMyStateTimer[thisbutton], kTmButtonDebounceTime);
 		break;
 
-	case kStateNormal:
+	case kStateOperational:
+		// TM() API doesn't work w/ array syntax; copy to local scalar timer
+		tmrdebounce = tmrMyStateTimer[thisbutton];
 		// read next bit
-		read_bits *= 2;					// shift current bits left one position
-		read_bits = (uint8_t)(read_bits | di_read_next_button_input_bit(0));
-		if(read_bits == 0)
+		read_bits[thisbutton] <<= 1;				// shift current bits left one position
+		read_bits[thisbutton] = (uint8_t)(read_bits[thisbutton] | di_read_next_button_input_bit(thisbutton));
+		if(read_bits[thisbutton] == 0)
 		{
 			// debounce done, recognized as an open (released) button
-			evId = evButton_BtnReleased;
-			reason2 = kButton0;			// todo: identify which button.
-			reason3 = kReasonDebounced;
+			evId[thisbutton] = evButton_BtnReleased;
+			reason3[thisbutton] = kReasonDebounced;
 		}
-		else if(read_bits == 0xFF)
+		else if(read_bits[thisbutton] == 0xFF)
 		{
 			// debounce done, recognized as button press, advance to next state
-			evId = evButton_BtnPressed;
-			reason2 = kButton0;			// todo: identify which button.
-			reason3 = kReasonDebounced;
+			evId[thisbutton] = evButton_BtnPressed;
+			reason3[thisbutton] = kReasonDebounced;
 		}
-		else if(TM(tmrMyStateTimer))
+		else if(TM(tmrdebounce))
 		{
-			reason2 = 0;
-			reason3 = kReasonTimeout;
+			reason3[thisbutton] = kReasonTimeout;
 		}
 		else
 		{
-			--statephase;		// nothing of note happened, stay in this state
+			--statephase[thisbutton];		// nothing of note happened, stay in this state
 		}
 		break;
 
 	case kStateExit:
 		// for this edition of this state, no state-specific exit action is required.
 		//	let the caller (normally the SME) know what event and what guard provoked the change.
-		pev->evId = evId;		// save exit reason 1 (event that provoked the exit)
-		pev->evData = reason2;	// save exit reason 2 (button recognized)
-		*pextra = reason3;		// save exit reason 3 (reason for exit (no button, button, timeout)
+		pev->evId = evId[thisbutton];	// save exit reason 1 (event that provoked the exit)
+		pev->evData = thisbutton;		// save exit reason 2 (button recognized)
+		*pextra = reason3[thisbutton];	// save exit reason 3 (reason for exit (no button, button, timeout)
 		break;
 	}
 
 	// the next line is part of the template and should not be touched.
-	return statephase;
+	return statephase[thisbutton];
 }
 
 
 static tStateReturnCodes
 stStart(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase = kStateUninit;
-	static tEvQ_EventID evId;
+	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	static tEvQ_EventID evId[kNumberButtons];
+	uint32_t thisbutton;
 
-	switch(statephase++)
+	if(!pev)	{ return 0; }
+	if(!pextra)	{ return 0; }
+
+	thisbutton = pev->evData;
+	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
 	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		// generic state management, common to all states
-		statephase = kStateNormal;
-		evId = pev->evId;			// save default exit reason 1.
+		statephase[thisbutton]	= kStateOperational;
+		evId[thisbutton]		= pev->evId;			// save default exit reason 1.
 
 		// ---- state-specific behavior ---------
 		// no state-specific behavior for this state
 		break;
 
-	case kStateNormal:
+	case kStateOperational:
 		// we'll basically leave as soon as we start.
 		break;
 
 	case kStateExit:
 		// manage the state machine: set exit reasons
-		pev->evId = evId;		// exit reason 1: event that provoked the exit.
-		pev->evData = 0;		// exit reason 2
-		*pextra = kReasonNone;	// exit reason 3 (for debugging use in transition)
+		pev->evId = evId[thisbutton];	// exit reason 1: event that provoked the exit.
+		pev->evData = thisbutton;		// exit reason 2
+		*pextra = kReasonNone;			// exit reason 3 (for debugging use in transition)
 
 		// state-specific behavior
 		/* (no state-specific exit actions here) */
@@ -201,7 +213,7 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 	}
 
 	// the next line is part of the template and should not be touched.
-	return statephase;
+	return statephase[thisbutton];
 }
 
 
@@ -218,45 +230,43 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase = kStateUninit;
-	static tEvQ_EventID evId;
-	static uint32_t evData = 0;
+	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	uint32_t thisbutton;
 
-	switch(statephase++)
+	if(!pev)	{return 0;}
+	if(!pextra)	{return 0;}
+
+	thisbutton = pev->evData;
+	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
 	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		// generic state management, common to all states
-		statephase = kStateNormal;	// reinitialize state's phase marker unilaterally
-		evId = pev->evId;			// save default exit reason 1.
+		statephase[thisbutton] = kStateOperational;	// reinitialize state's phase marker unilaterally
 
 		// ---- state-specific behavior ---------
 		// no state-specific behavior for this state
 		break;
 
-	case kStateNormal:
+	case kStateOperational:
 		do {
 			// use local var so i can override it during debugging.
-			bool thisbit = di_read_next_button_input_bit(0);
+			bool thisbit = di_read_next_button_input_bit(thisbutton);	// issue #3: pass the current button
 			if(!thisbit)
 			{
 				// stay in this state until we see a twitch on one of the button inputs.
 				//	note: in this iteration of this implementation, we're only reading "button" 0
-				--statephase;
-			}
-			else
-			{
-				evData = kButton0;	// todo: identify which button.
+				--statephase[thisbutton];
 			}
 		} while(0);
 		break;
 
 	case kStateExit:
 		// manage the state machine: set exit reasons
-		pev->evId = evId;		// exit reason 1: event that provoked the exit.
-		pev->evData = evData;	// exit reason 2: non-zero bit read
-		*pextra = kReasonNone;	// exit reason 3: legacy assignment (before creation of enum reason)
+		// evId field (reason1) is OK as passed in.
+		pev->evData = thisbutton;		// reason2
+		*pextra = kReasonTwitchNoted;	// reason3
 
 		// state-specific behavior
 		/* (no state-specific exit actions here) */
@@ -264,7 +274,7 @@ stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 	}
 
 	// the next line is part of the template and should not be touched.
-	return statephase;
+	return statephase[thisbutton];
 }
 /** @} */
 
@@ -278,47 +288,52 @@ stDebouncePress(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase = kStateUninit;
-	static tCwswClockTics tmrPressedStateTimer = 0;
-	static tEvQ_EventID evId;
-	static uint32_t reason2 = 0;
-	static uint32_t reason3 = kReasonNone;
+	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	static tCwswClockTics tmrPressedStateTimer[kNumberButtons] = {0}, tmrPressed;
+	static tEvQ_EventID evId[kNumberButtons] = {0};
+	static uint32_t reason2[kNumberButtons] = {0};
+	static uint32_t reason3[kNumberButtons] = {kReasonNone};
+	uint32_t thisbutton;
 
-	switch(statephase++)
+	if(!pev)	{return 0;}
+	if(!pextra)	{return 0;}
+
+	thisbutton = pev->evData;
+	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:
 	case kStateAbort:
 	default:
-		evId = pev->evId;			// save exit Reason1
-		reason3 = kReasonNone;		// save default exit Reason3
-		statephase = kStateNormal;	// reinitialize state's phase marker unilaterally
+		evId[thisbutton] = pev->evId;				// save exit Reason1
+		reason3[thisbutton] = kReasonNone;			// save default exit Reason3
+		statephase[thisbutton] = kStateOperational;	// reinitialize state's phase marker unilaterally
 
 		/* for this task, we stay here as long as the button remains pressed, or until the timeout
 		 * period expires. a "release" is seen as a zero bit on the bit input stream.
 		 */
-
-		Set(Cwsw_Clock, tmrPressedStateTimer, kButtonStuckTimeoutValue);
+		Set(Cwsw_Clock, tmrPressedStateTimer[thisbutton], kButtonStuckTimeoutValue);
 		break;
 
-	case kStateNormal:
+	case kStateOperational:
 		do {
+			tmrPressed = tmrPressedStateTimer[thisbutton];
 			// use local var so i can override it during debugging.
-			bool thisbit = di_read_next_button_input_bit(0);
+			bool thisbit = di_read_next_button_input_bit(thisbutton);
 			if(!thisbit)
 			{
 				// button might have been released, go to debounce-release state to confirm
-				reason2 = kButton0;		// todo: identify which button.
-				reason3 = kReasonNone;
+				reason2[thisbutton] = thisbutton;
+				reason3[thisbutton] = kReasonTwitchNoted;
 			}
-			else if(TM(tmrPressedStateTimer))
+			else if(TM(tmrPressed))
 			{
 				// we've been too long in the pressed-button state, there might be a stuck button
-				reason2 = 0;
-				reason3 = kReasonTimeout;
+				reason2[thisbutton] = 0;
+				reason3[thisbutton] = kReasonTimeout;
 			}
 			else
 			{
-				--statephase;			// nothing of note happened, stay in this state
+				--statephase[thisbutton];			// nothing of note happened, stay in this state
 			}
 		} while(0);
 		break;
@@ -326,14 +341,14 @@ stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 	case kStateExit:
 		// for this edition of this state, no state-specific exit action is required.
 		//	let the caller (normally the SME) know what event and what guard provoked the change.
-		pev->evId = evId;		// save exit reason 1 (event that provoked the exit)
-		pev->evData = reason2;	// save exit reason 2 (button recognized)
-		*pextra = reason3;		// save exit reason 3 (reason for exit (no button, button, timeout)
+		pev->evId = evId[thisbutton];		// save exit reason 1 (event that provoked the exit)
+		pev->evData = reason2[thisbutton];	// save exit reason 2 (button recognized)
+		*pextra = reason3[thisbutton];		// save exit reason 3 (reason for exit (no button, button, timeout)
 		break;
 	}
 
 	// the next line is part of the template and should not be touched.
-	return statephase;
+	return statephase[thisbutton];
 }
 #endif
 
@@ -349,41 +364,48 @@ stDebounceRelease(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase = kStateUninit;
-//	static tCwswClockTics tmrMyStateTimer = 0;
-	static tEvQ_EventID evId;
+	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	static tEvQ_EventID evId[kNumberButtons] = {0};
+	uint32_t thisbutton;
 
-	switch(statephase++)
+	if(!pev)	{return 0;}
+	if(!pextra)	{return 0;}
+
+	thisbutton = pev->evData;
+	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
 	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
-		evId = pev->evId;	// save exit Reason1
-//		Set(Cwsw_Clock, tmrMyStateTimer, tmr1000ms);
+		evId[thisbutton] = pev->evId;	// save exit Reason1
 		break;
 
-	case kStateNormal:
-		if(di_read_next_button_input_bit(0))
-		{
-			// stay in this state as long as we read a "1" bit
-			--statephase;
-		}
+	case kStateOperational:
+		do {
+			bool thisbit = di_read_next_button_input_bit(0);
+			if(thisbit)
+			{
+				// stay in this state as long as we read a "1" bit
+				--statephase[thisbutton];
+			}
+		} while(0);
 		break;
 
 	case kStateExit:
 		// for this edition of this state, no state-specific exit action is required.
 		//	let the caller (normally the SME) know what event and what guard provoked the change.
-		pev->evId = evId;	// save exit reason 1 (event that provoked the exit)
+		pev->evId = evId[thisbutton];	// save exit reason 1 (event that provoked the exit)
+
 		// there's one and only one reason we leave this state, no reason for supplying reasons.
 		//	However, to allow the transition action to make an informed decision, indicate a unique
 		//	exit code.
-		pev->evData = 0;
+		pev->evData = thisbutton;
 		*pextra = kReasonButtonUnstuck;
 		break;
 	}
 
 	// the next line is part of the template and should not be touched.
-	return statephase;
+	return statephase[thisbutton];
 }
 #endif
 
@@ -450,7 +472,7 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 static void
 NullTransition(tEvQ_Event ev, uint32_t extra)
 {
-	printf("Transition: ev: %i, Transition ID: %i\n", ev.evId, extra);
+	printf("Transition: ev: %i, Button: %i, Transition ID: %i\n", ev.evId, ev.evData, extra);
 	UNUSED(extra);
 }
 
@@ -460,29 +482,27 @@ NullTransition(tEvQ_Event ev, uint32_t extra)
  * 				+-------- timeout (stuck)  -/               |
  * 				\-------------------------------------------/ (unimportant if debounce achieved, or if timeout)
  *
- *	these transitions are in the same order as listed in the design document.
+ *	~these transitions are in the same order as listed in the design document.~ (not anymore)
  */
 static tTransitionTable tblTransitions[] = {
-	// current				Reason1					Reason2			Reason3					Next State			Transition Func
-	{ stStart,				evButton_Task,				0,			kReasonNone,			stButtonReleased,	NullTransition		},	// normal termination
+	// current				Reason1					Reason2		Reason3					Next State			Transition Func
+	{ stStart,				evButton_Task,			0xFF,	kReasonNone,			stButtonReleased,	NullTransition		},	// normal termination
 
-	{ stButtonReleased,		evButton_Task,			kButton0,		kReasonNone,			stDebouncePress,	NullTransition		},	// normal termination: non-0 bit seen @ button
-//	{ stButtonReleased,		evButton_Task,			kButton1,		kReasonNone,			stDebouncePress,	NullTransition		},	// normal termination: non-0 bit seen @ button
-	{ stDebouncePress,		evButton_BtnPressed,	kButton0,		kReasonDebounced,		stButtonPressed,	NotifyBtnStateChg	},	// normal termination (debounced input is 0xFF)
-	{ stButtonPressed,		evButton_Task,			kButton0,		kReasonNone,			stDebounceRelease,	NullTransition		},
-	{ stDebounceRelease,	evButton_BtnReleased,	kButton0,		kReasonDebounced,		stButtonReleased,	NotifyBtnStateChg	},
+	{ stButtonReleased,		evButton_Task,			0xFF,	kReasonTwitchNoted,		stDebouncePress,	NullTransition		},	// normal termination: non-0 bit seen @ button
 
-	{ stDebouncePress,		evButton_Task,				0,			kReasonTimeout,			stButtonReleased,	NullTransition		},	// debounce timeout
-	{ stDebouncePress,		evButton_Task,			kButtonNone,	kReasonNone,			stButtonReleased,	NullTransition		},	// debounced input is 0. no need to post event, since debounced state hasn't changed.
+	{ stDebouncePress,		evButton_BtnPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NotifyBtnStateChg	},	// normal termination (debounced input is 0xFF)
+	{ stDebouncePress,		evButton_BtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NullTransition		},	// debounced input is 0. no need to post event, since debounced state hasn't changed.
+	{ stDebouncePress,		evButton_Task,			0xFF,	kReasonTimeout,			stButtonReleased,	NullTransition		},	// debounce timeout
 
-	{ stButtonPressed,		evButton_Task,				0,			kReasonTimeout,			stButtonStuck,		NotifyBtnStateChg	},	// button stuck, go directly back to "stuck" state
+	{ stButtonPressed,		evButton_Task,			0xFF,	kReasonTwitchNoted,		stDebounceRelease,	NullTransition		},
+	{ stButtonPressed,		evButton_Task,			0xFF,	kReasonTimeout,			stButtonStuck,		NotifyBtnStateChg	},	// button stuck, go directly back to "stuck" state
+
+	{ stDebounceRelease,	evButton_BtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NotifyBtnStateChg	},
+	{ stDebounceRelease,	evButton_BtnPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NullTransition		},
+
 	// in the interests of simplicity (MVP), we'll jump directly back to the Released state.
 	//	we could insert another instance of the debouncer, but except for transition time, the end effect will be the same.
-	{ stButtonStuck,		evButton_Task,				0,			kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
-
-	{ stDebounceRelease,	evButton_BtnPressed,	kButton0,		kReasonDebounced,		stButtonPressed,	NullTransition		},
-
-
+	{ stButtonStuck,		evButton_Task,			0xFF,	kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
 };
 
 
@@ -493,34 +513,38 @@ static tTransitionTable tblTransitions[] = {
 void
 Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra)	// uses DI lower layers
 {
-	static pfStateHandler currentstate = NULL, nextstate = NULL;
+	static pfStateHandler currentstate[kNumberButtons] = {NULL}, nextstate = NULL;
 	tStateReturnCodes rc = kStateUninit;
 
-	if(!currentstate)	{ currentstate = stStart; }
-	if(currentstate) 	{ rc = currentstate(&ev, &extra); }
-
-	if(rc > kStateExit)
+	uint32_t idxbutton = TABLE_SIZE(currentstate);
+	while(idxbutton--)
 	{
-		/* the SME needs to know which state to advance to, given the current state.
-		 * in order for it to know that, it has to know which event & guard combination led to the end
-		 * of the current state.
-		 */
-		nextstate = Cwsw_Sme_FindNextState(
-				tblTransitions, TABLE_SIZE(tblTransitions),
-				currentstate, ev, extra);
-		if(nextstate)
-		{
-			currentstate = nextstate;
-		}
-		else
-		{
-			// disable alarm that launches this SME via its event.
-			//	if restarted, we'll resume in the current state
-			//	need a way to restart w/ the init state.
-			pMyTimer->tmrstate = kTmrState_Disabled;
-		}
-	}
+		if(!currentstate[idxbutton])	{ currentstate[idxbutton] = stStart; }
+		ev.evData = idxbutton;
+		if(currentstate[idxbutton]) 	{ rc = currentstate[idxbutton](&ev, &extra); }
 
+		if(rc > kStateExit)
+		{
+			/* the SME needs to know which state to advance to, given the current state.
+			 * in order for it to know that, it has to know which event & guard combination led to
+			 * the end of the current state.
+			 */
+			nextstate = Cwsw_Sme_FindNextState(
+					tblTransitions, TABLE_SIZE(tblTransitions),
+					currentstate[idxbutton], ev, extra);
+			if(nextstate)
+			{
+				currentstate[idxbutton] = nextstate;
+			}
+			else
+			{
+				// disable alarm that launches this SME via its event.
+				//	if restarted, we'll resume in the current state
+				//	need a way to restart w/ the init state.
+				pMyTimer->tmrstate = kTmrState_Disabled;
+			}
+		}
+	}	// idxbutton
 }
 
 void

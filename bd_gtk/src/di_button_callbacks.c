@@ -124,7 +124,7 @@ cbUiButtonReleased(GtkWidget *widget, gpointer data)
 //	if(widget == (GtkWidget *)btn7) { idx = 7; } else
 	if(widget == (GtkWidget *)btn3)
 	{
-		Cwsw_EvQX__PostEventId(&tedlos_evqx, evStoplite_ForceYellow);
+		Cwsw_EvQX__PostEventId(&tedlos_evqx, evStoplite_ForceYellow);	// todo: move this to app-level swc
 		return;
 	}
 
@@ -142,12 +142,12 @@ cbUiButtonReleased(GtkWidget *widget, gpointer data)
 
 
 bool
-di_read_next_button_input_bit(uint8_t idx)
+di_read_next_button_input_bit(uint32_t idx)
 {
 	bool retval = ((buttoninputbits[idx] & 1) != 0);
 	buttoninputbits[idx] /= 2;
-	if((!retval) && (!buttoninputbits[idx]))
-	{
+	if((!retval) && (!buttoninputbits[idx]))	// if this bit is clear, it could be because the input stream is depleted; if the input stream is also depleted...
+	{	// ... then check whether the "button pressed" flag is true
 		// can't seem to get the GTK API to work. fall back to local image of button state.
 //		retval = gtk_toggle_button_get_active((GtkToggleButton *)btn0);	// todo: return state of last button pressed
 		retval = BIT_TEST(buttonstatus, idx);

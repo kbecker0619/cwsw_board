@@ -36,6 +36,20 @@ extern "C" {
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
+/** Button IDs for this board. */
+enum {
+	kBoardButton0,
+	kBoardButton1,
+	kBoardButton2,
+	kBoardButton3,
+	kBoardButton4,
+	kBoardButton5,
+	kBoardButton6,
+	kBoardButton7,
+	kNumberButtons
+};
+
+
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
 // ============================================================================
@@ -82,8 +96,8 @@ extern void Cwsw_Board__Set_kBoardLed1(bool value);
 
 
 /** Target 1 for TM(tmr) */
-#define GET_tmrMyStateTimer()		Cwsw_GetTimeLeft(tmrMyStateTimer)		/* timer local to one SM state */
-#define GET_tmrPressedStateTimer()	Cwsw_GetTimeLeft(tmrPressedStateTimer)	/* timer local to one SM state */
+#define GET_tmrdebounce()	Cwsw_GetTimeLeft(tmrdebounce)	/* timer local to one SM state */
+#define GET_tmrPressed()	Cwsw_GetTimeLeft(tmrPressed)	/* timer local to one SM state */
 
 // ---- /Targets for Get/Set APIs ------------------------------------------- }
 
