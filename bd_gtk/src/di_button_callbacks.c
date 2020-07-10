@@ -170,7 +170,7 @@ di_read_next_button_input_bit(uint32_t idx)
 	buttoninputbits[idx] /= 2;
 	if((!retval) && (!buttoninputbits[idx]))	// if this bit is clear, it could be because the input stream is depleted; if the input stream is also depleted...
 	{	// ... then check whether the "button pressed" flag is true
-		// can't seem to get the GTK API to work. fall back to local image of button state.
+		// toggle buttons didn't work as i wanted - each press also gets a release, but it's a press-release sandwich where the "pressed" status is the meat
 //		retval = gtk_toggle_button_get_active((GtkToggleButton *)btn0);	// todo: return state of last button pressed
 		retval = BIT_TEST(buttonstatus, idx);
 	}
