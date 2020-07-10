@@ -38,6 +38,7 @@ extern "C" {
 
 /** Button IDs for this board. */
 enum {
+	kBoardButtonNone,
 	kBoardButton0,
 	kBoardButton1,
 	kBoardButton2,

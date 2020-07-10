@@ -56,9 +56,6 @@ enum { kTmButtonDebounceTime = tmr500ms + tmr250ms };
 enum { kTmButtonDebounceTime = tmr500ms + tmr100ms };
 #endif
 
-/// Button identifiers.
-enum { kButtonNone, kButton0, kButton1, };
-
 /// "Reason3" reasons for exiting a state.
 enum { kReasonNone, kReasonTwitchNoted, kReasonDebounced, kReasonTimeout, kReasonButtonUnstuck };
 
@@ -195,6 +192,7 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 
 		// ---- state-specific behavior ---------
 		// no state-specific behavior for this state
+//		printf("Entering %s\n", __FUNCTION__);
 		break;
 
 	case kStateOperational:
@@ -209,6 +207,7 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 
 		// state-specific behavior
 		/* (no state-specific exit actions here) */
+//		printf("Leaving %s\n", __FUNCTION__);
 		break;
 	}
 
@@ -247,6 +246,7 @@ stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 
 		// ---- state-specific behavior ---------
 		// no state-specific behavior for this state
+//		printf("Entering %s\n", __FUNCTION__);
 		break;
 
 	case kStateOperational:
@@ -270,6 +270,7 @@ stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 
 		// state-specific behavior
 		/* (no state-specific exit actions here) */
+//		printf("Leaving %s\n", __FUNCTION__);
 		break;
 	}
 
@@ -284,7 +285,6 @@ stDebouncePress(ptEvQ_Event pev, uint32_t *pextra)
 	return stDebounceButton(pev, pextra);
 }
 
-#if 1
 static tStateReturnCodes
 stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 {
@@ -312,6 +312,7 @@ stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 		 * period expires. a "release" is seen as a zero bit on the bit input stream.
 		 */
 		Set(Cwsw_Clock, tmrPressedStateTimer[thisbutton], kButtonStuckTimeoutValue);
+//		printf("Entering %s\n", __FUNCTION__);
 		break;
 
 	case kStateOperational:
@@ -344,23 +345,20 @@ stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 		pev->evId = evId[thisbutton];		// save exit reason 1 (event that provoked the exit)
 		pev->evData = reason2[thisbutton];	// save exit reason 2 (button recognized)
 		*pextra = reason3[thisbutton];		// save exit reason 3 (reason for exit (no button, button, timeout)
+//		printf("Leaving %s\n", __FUNCTION__);
 		break;
 	}
 
 	// the next line is part of the template and should not be touched.
 	return statephase[thisbutton];
 }
-#endif
 
-#if 1
 static tStateReturnCodes
 stDebounceRelease(ptEvQ_Event pev, uint32_t *pextra)
 {
 	return stDebounceButton(pev, pextra);
 }
-#endif
 
-#if 1
 static tStateReturnCodes
 stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 {
@@ -378,6 +376,7 @@ stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		evId[thisbutton] = pev->evId;	// save exit Reason1
+//		printf("Entering %s\n", __FUNCTION__);
 		break;
 
 	case kStateOperational:
@@ -401,13 +400,14 @@ stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 		//	exit code.
 		pev->evData = thisbutton;
 		*pextra = kReasonButtonUnstuck;
+//		printf("Leaving %s\n", __FUNCTION__);
 		break;
 	}
 
 	// the next line is part of the template and should not be touched.
 	return statephase[thisbutton];
 }
-#endif
+
 
 // ============================================================================
 // ----	Transition Functions --------------------------------------------------
@@ -429,19 +429,16 @@ stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 static void
 NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 {
-	// if we arrive here w/ extra == 3, it's because the stuck state has left since it read a none-1
-	//	bit. post an announcement event
 	switch(extra)
 	{
-	case kReasonDebounced:		// but change of state; evId contains correct event, evData contains which button is affected.
-		switch(ev.evData)
+	case kReasonDebounced:
+		// evId indicates button press or release
+		// evData indicates which button
+		// not much to do here except validate
+		switch(ev.evId)
 		{
-		case 0:
-			cwsw_assert(ev.evId == evButton_BtnPressed, "Button release event expected");
-			break;
-
-		case 1:		// state change to Pressed state
-			cwsw_assert(ev.evId == evButton_BtnPressed, "Button press event expected");
+		case evButton_BtnReleased:	// button has been released
+		case evButton_BtnPressed:	// state change to Pressed state
 			break;
 
 		default:
@@ -452,15 +449,14 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 
 	case kReasonTimeout:
 		ev.evId = evButton_BtnStuck;
-		(void)Cwsw_EvQX__PostEvent(pBtnEvqx, ev);
 		break;
 
 	case kReasonButtonUnstuck:
 		ev.evId = evButton_BtnUnstuck;
-		(void)Cwsw_EvQX__PostEvent(pBtnEvqx, ev);
 		break;
 
 	default:
+		ev.evId = 0;
 		break;
 	}
 	if(ev.evId)
@@ -472,8 +468,8 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 static void
 NullTransition(tEvQ_Event ev, uint32_t extra)
 {
-	printf("Transition: ev: %i, Button: %i, Transition ID: %i\n", ev.evId, ev.evData, extra);
 	UNUSED(extra);
+//	printf("Transition: ev: %i, Button: %i, Transition ID: %i\n", ev.evId, ev.evData, extra);
 }
 
 /* the button reads use the following state machine:

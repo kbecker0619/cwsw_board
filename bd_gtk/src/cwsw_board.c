@@ -61,6 +61,10 @@ extern GObject *btn0;
 extern GObject *btn1;
 extern GObject *btn2;
 extern GObject *btn3;
+extern GObject *btn4;
+extern GObject *btn5;
+extern GObject *btn6;
+extern GObject *btn7;
 
 static bool initialized = false;
 
@@ -121,6 +125,35 @@ tmHeartbeat(GtkWidget *widget)
 // ----	Public Functions ------------------------------------------------------
 // ========================================================================== {
 
+/* no-meaning demo function from gtk site
+ */
+void
+create_radio_buttons (void) {
+
+   GtkWidget *window, *radio1, *radio2, *box, *entry;
+   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+   gtk_box_set_homogeneous (GTK_BOX (box), TRUE);
+
+   // Create a radio button with a GtkEntry widget
+   radio1 = gtk_radio_button_new (NULL);
+   entry = gtk_entry_new ();
+   gtk_container_add (GTK_CONTAINER (radio1), entry);
+
+
+   // Create a radio button with a label
+   radio2 = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio1),
+                                                         "I’m the second radio button.");
+
+   // Pack them into a box, then show all the widgets
+   gtk_box_pack_start (GTK_BOX (box), radio1, true, true, 10);
+   gtk_box_pack_start (GTK_BOX (box), radio2, true, true, 10);
+   gtk_container_add (GTK_CONTAINER (window), box);
+   gtk_widget_show_all (window);
+   return;
+}
+
+
 // ---- General Functions --------------------------------------------------- {
 uint16_t
 Cwsw_Board__Init(void)
@@ -178,14 +211,64 @@ Cwsw_Board__Init(void)
 			if(!btn1)	{ bad_init = true; }
 		}
 
-		if(!bad_init)		// connect btn1, get handle for button 3 ("Force Yellow")
+		if(!bad_init)		// connect btn1, get handle for button 2
 		{
 			g_signal_connect(btn1, "clicked", G_CALLBACK(cbButtonClicked), NULL);
 			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
 			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
 
+			btn2 = gtk_builder_get_object(pUiPanel, "btn2");
+			if(!btn2)	{ bad_init = true; }
+		}
+
+		if(!bad_init)		// connect btn2, get handle for button 3
+		{
+			g_signal_connect(btn2, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
 			btn3 = gtk_builder_get_object(pUiPanel, "btn3");
 			if(!btn3)	{ bad_init = true; }
+		}
+
+		if(!bad_init)		// connect btn3, get handle for button 4
+		{
+			g_signal_connect(btn3, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+			btn4 = gtk_builder_get_object(pUiPanel, "btn4");
+			if(!btn4)	{ bad_init = true; }
+		}
+
+		if(!bad_init)		// connect btn4, get handle for button 5
+		{
+			g_signal_connect(btn4, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+			btn5 = gtk_builder_get_object(pUiPanel, "btn5");
+			if(!btn5)	{ bad_init = true; }
+		}
+
+		if(!bad_init)		// connect btn5, get handle for button 6
+		{
+			g_signal_connect(btn5, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+			btn6 = gtk_builder_get_object(pUiPanel, "btn6");
+			if(!btn6)	{ bad_init = true; }
+		}
+
+		if(!bad_init)		// connect btn6, get handle for button 7
+		{
+			g_signal_connect(btn6, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+			btn7 = gtk_builder_get_object(pUiPanel, "btn7");
+			if(!btn7)	{ bad_init = true; }
 		}
 
 		if(!bad_init)		// set up 1ms heartbeat
@@ -199,6 +282,8 @@ Cwsw_Board__Init(void)
 		gtk_widget_destroy((GtkWidget *)pWindow);
 		return kErr_Bsp_InitFailed;
 	}
+
+	create_radio_buttons();
 
 	SET(kBoardLed1, kLogicalOff);
 //	SET(kBoardLed2, kLogicalOff);
@@ -232,6 +317,8 @@ void
 Cwsw_Board__Set_kBoardLed1(bool value)
 {
 	GObject *pind = gtk_builder_get_object(pUiPanel, "ind0");	// run-time association w/ "ID" field in UI
+	if(pind)	{ gtk_check_menu_item_set_active((GtkCheckMenuItem *)pind, value); }
+	pind = gtk_builder_get_object(pUiPanel, "rb0");				// run-time association w/ "ID" field in UI
 	if(pind)	{ gtk_check_menu_item_set_active((GtkCheckMenuItem *)pind, value); }
 }
 
