@@ -507,39 +507,34 @@ static tTransitionTable tblTransitions[] = {
 // ----	Public Functions ------------------------------------------------------
 // ============================================================================
 
+/** Button handler.
+ *	This version is specifically tied to the GTK board. It is a prime candidate for refactoring once
+ *	we add support for more boards.
+ *
+ *	This handler needs to make the adaptation between our array of button state machines (one SM for
+ *	each button), and the single-instance SME.
+ */
 void
 Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra)	// uses DI lower layers
 {
-	static pfStateHandler currentstate[kNumberButtons] = {NULL}, nextstate = NULL;
-	tStateReturnCodes rc = kStateUninit;
-
+	static pfStateHandler currentstate[kNumberButtons] = {NULL};
 	uint32_t idxbutton = TABLE_SIZE(currentstate);
+
 	while(idxbutton--)
 	{
 		if(!currentstate[idxbutton])	{ currentstate[idxbutton] = stStart; }
-		ev.evData = idxbutton;
-		if(currentstate[idxbutton]) 	{ rc = currentstate[idxbutton](&ev, &extra); }
 
-		if(rc > kStateExit)
+		ev.evData = idxbutton;
+		currentstate[idxbutton] = Cwsw_Sme__SME(
+				tblTransitions, TABLE_SIZE(tblTransitions),
+				currentstate[idxbutton], ev, extra);
+
+		if(!currentstate[idxbutton])
 		{
-			/* the SME needs to know which state to advance to, given the current state.
-			 * in order for it to know that, it has to know which event & guard combination led to
-			 * the end of the current state.
-			 */
-			nextstate = Cwsw_Sme_FindNextState(
-					tblTransitions, TABLE_SIZE(tblTransitions),
-					currentstate[idxbutton], ev, extra);
-			if(nextstate)
-			{
-				currentstate[idxbutton] = nextstate;
-			}
-			else
-			{
 				// disable alarm that launches this SME via its event.
 				//	if restarted, we'll resume in the current state
 				//	need a way to restart w/ the init state.
 				pMyTimer->tmrstate = kTmrState_Disabled;
-			}
 		}
 	}	// idxbutton
 }
