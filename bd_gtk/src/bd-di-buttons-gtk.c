@@ -110,7 +110,7 @@ stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
-	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
+	case kStateFinished:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		evId[thisbutton] = pev->evId;				// save exit Reason1
 		statephase[thisbutton] = kStateOperational;	// reinitialize state's phase marker unilaterally
@@ -184,7 +184,7 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
-	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
+	case kStateFinished:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		// generic state management, common to all states
 		statephase[thisbutton]	= kStateOperational;
@@ -239,7 +239,7 @@ stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
-	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
+	case kStateFinished:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		// generic state management, common to all states
 		statephase[thisbutton] = kStateOperational;	// reinitialize state's phase marker unilaterally
@@ -302,7 +302,7 @@ stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:
-	case kStateAbort:
+	case kStateFinished:
 	default:
 		evId[thisbutton] = pev->evId;				// save exit Reason1
 		reason3[thisbutton] = kReasonNone;			// save default exit Reason3
@@ -373,7 +373,7 @@ stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 	switch(statephase[thisbutton]++)
 	{
 	case kStateUninit:	/* on 1st entry, execute on-entry action */
-	case kStateAbort:	/* upon return to this state after previous normal exit, execute on-entry action */
+	case kStateFinished:	/* upon return to this state after previous normal exit, execute on-entry action */
 	default:			/* for any unexpected value, restart this state. */
 		evId[thisbutton] = pev->evId;	// save exit Reason1
 //		printf("Entering %s\n", __FUNCTION__);
