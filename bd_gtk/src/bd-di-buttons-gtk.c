@@ -468,6 +468,7 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 static void
 NullTransition(tEvQ_Event ev, uint32_t extra)
 {
+	UNUSED(ev);
 	UNUSED(extra);
 //	printf("Transition: ev: %i, Button: %i, Transition ID: %i\n", ev.evId, ev.evData, extra);
 }
