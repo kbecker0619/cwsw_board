@@ -76,7 +76,6 @@ GObject *btn7		= NULL;
 void
 cbUiButtonPressed(GtkWidget *widget, gpointer data)
 {
-	static bool noisypattern = false;
 	uint32_t idx = kBoardButtonNone;
 	UNUSED(data);
 
@@ -105,6 +104,7 @@ cbUiButtonPressed(GtkWidget *widget, gpointer data)
 	// call into the next layer down (arch)
 	// for exploration, we'll use 8 consecutive bits of the same value to detect a state change
 #if 0
+	static bool noisypattern = false;	// location here in this function requires C99, prohibits Visual Studio
 	buttoninputbits[idx] = noisypattern ? noisypatterna : noisypatternb; noisypattern = !noisypattern;
 #else
 	if(buttoninputbits[idx])
@@ -123,7 +123,6 @@ cbUiButtonPressed(GtkWidget *widget, gpointer data)
 void
 cbUiButtonReleased(GtkWidget *widget, gpointer data)
 {
-	static bool noisypattern = false;
 	uint32_t idx = 0;
 	UNUSED(data);
 	// 'twould rather use a switch statement, but can't b/c GCC complains about a pointer not be a scalar type
@@ -141,6 +140,7 @@ cbUiButtonReleased(GtkWidget *widget, gpointer data)
 
 	// call into the next layer down (arch)
 #if 0
+	static bool noisypattern = false;	// location here in this function requires C99, prohibits Visual Studio
 	buttoninputbits[idx] = noisypattern ? noisypatternb : noisypatterna; noisypattern = !noisypattern;
 #else
 	if(buttoninputbits[idx])
