@@ -125,34 +125,6 @@ tmHeartbeat(GtkWidget *widget)
 // ----	Public Functions ------------------------------------------------------
 // ========================================================================== {
 
-/* no-meaning demo function from gtk site
- */
-void
-create_radio_buttons (void) {
-
-   GtkWidget *window, *radio1, *radio2, *box, *entry;
-   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-   gtk_box_set_homogeneous (GTK_BOX (box), TRUE);
-
-   // Create a radio button with a GtkEntry widget
-   radio1 = gtk_radio_button_new (NULL);
-   entry = gtk_entry_new ();
-   gtk_container_add (GTK_CONTAINER (radio1), entry);
-
-
-   // Create a radio button with a label
-   radio2 = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio1),
-                                                         "I’m the second radio button.");
-
-   // Pack them into a box, then show all the widgets
-   gtk_box_pack_start (GTK_BOX (box), radio1, true, true, 10);
-   gtk_box_pack_start (GTK_BOX (box), radio2, true, true, 10);
-   gtk_container_add (GTK_CONTAINER (window), box);
-   gtk_widget_show_all (window);
-   return;
-}
-
 
 // ---- General Functions --------------------------------------------------- {
 uint16_t
@@ -283,11 +255,9 @@ Cwsw_Board__Init(void)
 		return kErr_Bsp_InitFailed;
 	}
 
-	create_radio_buttons();
-
 //	SET(kBoardLed1, kLogicalOff);
 //	SET(kBoardLed2, kLogicalOff);
-//	SET(kBoardLed3, kLogicalOff);
+	SET(kBoardLed3, kLogicalOff);
 
 	initialized = true;
 	return kErr_Bsp_NoError;
@@ -311,7 +281,6 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 // ---- /General Functions -------------------------------------------------- }
 
 // ---- Common API / Highly Customized -------------------------------------- {
-
 
 void
 Cwsw_Board__Set_kBoardLed3(bool value)
