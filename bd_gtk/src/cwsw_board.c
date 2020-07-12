@@ -255,8 +255,8 @@ Cwsw_Board__Init(void)
 		return kErr_Bsp_InitFailed;
 	}
 
-//	SET(kBoardLed1, kLogicalOff);
-//	SET(kBoardLed2, kLogicalOff);
+	SET(kBoardLed1, kLogicalOff);
+	SET(kBoardLed2, kLogicalOff);
 	SET(kBoardLed3, kLogicalOff);
 
 	initialized = true;
@@ -281,6 +281,26 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 // ---- /General Functions -------------------------------------------------- }
 
 // ---- Common API / Highly Customized -------------------------------------- {
+
+void
+Cwsw_Board__Set_kBoardLed1(bool value)
+{
+	GObject *pind = gtk_builder_get_object(pUiPanel, "ind0");	// run-time association w/ "ID" field in UI
+	if(pind)
+	{
+		gtk_toggle_button_set_active((GtkToggleButton *)pind, value);
+	}
+}
+
+void
+Cwsw_Board__Set_kBoardLed2(bool value)
+{
+	GObject *pind = gtk_builder_get_object(pUiPanel, "ind1");	// run-time association w/ "ID" field in UI
+	if(pind)
+	{
+		gtk_toggle_button_set_active((GtkToggleButton *)pind, value);
+	}
+}
 
 void
 Cwsw_Board__Set_kBoardLed3(bool value)
