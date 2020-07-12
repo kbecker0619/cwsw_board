@@ -94,6 +94,8 @@ enum { bd_gtk };		/* Component ID for Event Queue */
  *	@note This is a "local" API, not designed to work across components.
  */
 extern void Cwsw_Board__Set_kBoardLed1(bool value);
+extern void Cwsw_Board__Set_kBoardLed2(bool value);
+extern void Cwsw_Board__Set_kBoardLed3(bool value);
 
 
 /** Target 1 for TM(tmr) */

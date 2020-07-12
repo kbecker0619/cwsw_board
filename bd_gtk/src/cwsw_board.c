@@ -285,7 +285,7 @@ Cwsw_Board__Init(void)
 
 	create_radio_buttons();
 
-	SET(kBoardLed1, kLogicalOff);
+//	SET(kBoardLed1, kLogicalOff);
 //	SET(kBoardLed2, kLogicalOff);
 //	SET(kBoardLed3, kLogicalOff);
 
@@ -314,12 +314,13 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 
 
 void
-Cwsw_Board__Set_kBoardLed1(bool value)
+Cwsw_Board__Set_kBoardLed3(bool value)
 {
-	GObject *pind = gtk_builder_get_object(pUiPanel, "ind0");	// run-time association w/ "ID" field in UI
-	if(pind)	{ gtk_check_menu_item_set_active((GtkCheckMenuItem *)pind, value); }
-	pind = gtk_builder_get_object(pUiPanel, "rb0");				// run-time association w/ "ID" field in UI
-	if(pind)	{ gtk_check_menu_item_set_active((GtkCheckMenuItem *)pind, value); }
+	GObject *pind = gtk_builder_get_object(pUiPanel, "ind2");	// run-time association w/ "ID" field in UI
+	if(pind)
+	{
+		gtk_toggle_button_set_active((GtkToggleButton *)pind, value);
+	}
 }
 
 // ---- /Common API / Highly Customized ------------------------------------- }
