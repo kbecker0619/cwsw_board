@@ -124,5 +124,27 @@ stButtonPressed -> stButtonStuck: TM(stuck_time)
 stButtonStuck -> stButtonReleased: [button released]
 
 @enduml
+```
+```plantuml
+@startuml
+state stGreen {
+    state stWalk {
+        [*] -> stWalkOn
+        stWalkOn -> stWalkOff: TM(500ms)
+        stWalkOff -> stWalkOn: TM(500ms)
+    }
+}
+state stYellow
+state stRed
+state stYellowHold
+[*] -> stGreen
+stGreen -d-> stYellow: TM(GreenTime)
+stYellow -> stRed: TM(YellowTime)
+stRed -> stGreen: TM(RedTime)
 
+stGreen -r-> stYellowHold: evWalk
+stRed -r-> stYellowHold: evWalk
+stYellow -> stYellowHold: evWalk
+
+@enduml
 ```
