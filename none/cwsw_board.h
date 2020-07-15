@@ -128,7 +128,8 @@ enum eBoardLeds
 	kBoardLed1,
 	kBoardLed2,
 	kBoardLed3,
-	kBoardNumLeds = 3
+	kBoardLed4,
+	kBoardNumLeds
 };
 
 #endif

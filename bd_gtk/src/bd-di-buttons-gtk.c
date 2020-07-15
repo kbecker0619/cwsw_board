@@ -96,11 +96,11 @@ extern bool di_read_next_button_input_bit(uint32_t idx);
 static tStateReturnCodes
 stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
-	static tCwswClockTics tmrMyStateTimer[kNumberButtons] = {0}, tmrdebounce;
-	static tEvQ_EventID evId[kNumberButtons] = {0};
-	static uint32_t reason3[kNumberButtons] = {kReasonNone};
-	static uint8_t read_bits[kNumberButtons] = {0};
+	static tStateReturnCodes statephase[kBoardNumButtons] = {kStateUninit};
+	static tCwswClockTics tmrMyStateTimer[kBoardNumButtons] = {0}, tmrdebounce;
+	static tEvQ_EventID evId[kBoardNumButtons] = {0};
+	static uint32_t reason3[kBoardNumButtons] = {kReasonNone};
+	static uint8_t read_bits[kBoardNumButtons] = {0};
 	uint32_t thisbutton;
 
 	if(!pev)	{return 0;}
@@ -173,8 +173,8 @@ stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stStart(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
-	static tEvQ_EventID evId[kNumberButtons];
+	static tStateReturnCodes statephase[kBoardNumButtons] = {kStateUninit};
+	static tEvQ_EventID evId[kBoardNumButtons];
 	uint32_t thisbutton;
 
 	if(!pev)	{ return 0; }
@@ -229,7 +229,7 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonReleased(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
+	static tStateReturnCodes statephase[kBoardNumButtons] = {kStateUninit};
 	uint32_t thisbutton;
 
 	if(!pev)	{return 0;}
@@ -288,11 +288,11 @@ stDebouncePress(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonPressed(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
-	static tCwswClockTics tmrPressedStateTimer[kNumberButtons] = {0}, tmrPressed;
-	static tEvQ_EventID evId[kNumberButtons] = {0};
-	static uint32_t reason2[kNumberButtons] = {0};
-	static uint32_t reason3[kNumberButtons] = {kReasonNone};
+	static tStateReturnCodes statephase[kBoardNumButtons] = {kStateUninit};
+	static tCwswClockTics tmrPressedStateTimer[kBoardNumButtons] = {0}, tmrPressed;
+	static tEvQ_EventID evId[kBoardNumButtons] = {0};
+	static uint32_t reason2[kBoardNumButtons] = {0};
+	static uint32_t reason3[kBoardNumButtons] = {kReasonNone};
 	uint32_t thisbutton;
 
 	if(!pev)	{return 0;}
@@ -362,8 +362,8 @@ stDebounceRelease(ptEvQ_Event pev, uint32_t *pextra)
 static tStateReturnCodes
 stButtonStuck(ptEvQ_Event pev, uint32_t *pextra)
 {
-	static tStateReturnCodes statephase[kNumberButtons] = {kStateUninit};
-	static tEvQ_EventID evId[kNumberButtons] = {0};
+	static tStateReturnCodes statephase[kBoardNumButtons] = {kStateUninit};
+	static tEvQ_EventID evId[kBoardNumButtons] = {0};
 	uint32_t thisbutton;
 
 	if(!pev)	{return 0;}
@@ -517,7 +517,7 @@ static tTransitionTable tblTransitions[] = {
 void
 Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra)	// uses DI lower layers
 {
-	static pfStateHandler currentstate[kNumberButtons] = {NULL};
+	static pfStateHandler currentstate[kBoardNumButtons] = {NULL};
 	uint32_t idxbutton = TABLE_SIZE(currentstate);
 
 	while(idxbutton--)

@@ -52,7 +52,7 @@
 // ----	Module-level Variables ------------------------------------------------
 // ============================================================================
 
-static uint64_t buttoninputbits[kNumberButtons]	= {0};
+static uint64_t buttoninputbits[kBoardNumButtons]	= {0};
 static uint32_t buttonstatus = 0;	// bitmapped image of current button state. 32 bits mostly to avoid compiler warnings.
 
 GObject *btn0		= NULL;

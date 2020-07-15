@@ -258,6 +258,7 @@ Cwsw_Board__Init(void)
 	SET(kBoardLed1, kLogicalOff);
 	SET(kBoardLed2, kLogicalOff);
 	SET(kBoardLed3, kLogicalOff);
+	SET(kBoardLed4, kLogicalOff);
 
 	initialized = true;
 	return kErr_Bsp_NoError;
@@ -306,6 +307,16 @@ void
 Cwsw_Board__Set_kBoardLed3(bool value)
 {
 	GObject *pind = gtk_builder_get_object(pUiPanel, "ind2");	// run-time association w/ "ID" field in UI
+	if(pind)
+	{
+		gtk_toggle_button_set_active((GtkToggleButton *)pind, value);
+	}
+}
+
+void
+Cwsw_Board__Set_kBoardLed4(bool value)
+{
+	GObject *pind = gtk_builder_get_object(pUiPanel, "ind3");	// run-time association w/ "ID" field in UI
 	if(pind)
 	{
 		gtk_toggle_button_set_active((GtkToggleButton *)pind, value);

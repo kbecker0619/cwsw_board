@@ -34,12 +34,6 @@ extern "C" {
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
-/** Logical values for the LEDs and switches.
- *	Note the actual wiring on the board, or the polarity of the driver, might be inverted;
- *	that connection is made at the driver level, not the board level.
- */
-enum eDO_Logical_Values { kLogicalOff, kLogicalOn };
-
 enum eErrorCodes_Board {
 	kErr_Bsp_NoError = kErr_Lib_NoError,
 	kErr_Bsp_NotInitialized,
@@ -51,9 +45,6 @@ enum eErrorCodes_Board {
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
 // ============================================================================
-
-typedef enum eDO_Logical_Values		tDO_LogicalValues;
-
 
 // ============================================================================
 // ----	Public Variables ------------------------------------------------------
@@ -108,15 +99,6 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 
 /** Target symbol for Get(Cwsw_Board, xxx) interface */
 #define Cwsw_Board__Get(resource)			Cwsw_Board__Get_ ## resource()
-
-
-
-/* "short cut" targets for resources considered to be Global (shared) Resources.
- *	Simply redirect them to the actual public interface.
- */
-#define SET_kBoardLed1(onoff)				Set(Cwsw_Board, kBoardLed1, onoff)
-#define SET_kBoardLed2(onoff)				Set(Cwsw_Board, kBoardLed2, onoff)
-#define SET_kBoardLed3(onoff)				Set(Cwsw_Board, kBoardLed3, onoff)
 
 
 /** Target symbol for Set(Cwsw_Board, Resource, xxx) interface */
