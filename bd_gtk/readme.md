@@ -22,6 +22,13 @@ Buttons:
 * Btn 7: "Shift" - toggle on/off action. when on, multiple buttons can be pressed at the same time. Upon "release", the chord event will be posted
 
 
+At the application level, I want to address IO at the "function" level (e.g., "Walk" sign, "Pause" button).
+
+At the mid level (actuator or sensor SWC), I want to address IO at the level of the schematic signal.
+
+at the board level, I want to address IO at the MCU port level.
+
+
 # misc
 C compiler flag: `pkg-config --cflags gtk+-3.0`
 

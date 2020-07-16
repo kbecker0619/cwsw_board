@@ -73,6 +73,31 @@ GObject *btn7		= NULL;
 // ----	Public Functions ------------------------------------------------------
 // ============================================================================
 
+/* i know very well that this is more complicated than it need be, however, this UI is there to use
+ * and show the CWSW BSP, and as such, i need to translate GTK events into things the BSP under-
+ * stands.
+ *
+ * for simpleness, each event and each button has its own callback, which then set flags as
+ * appropriate for the CWSW code to process.
+ */
+
+/* on a physical board, my DI task will read all inputs at once, and will iterate through the
+ * handlers for the individual assignments. to kinda-sorta replicate that behavior, we'll have one
+ * button handler, and will detect which button was pressed by the widget address.
+ *
+ * note that on a real board, the DI action would be descended from a task, not a dispatched event
+ * from the GUI framework.
+ */
+void
+cbButtonClicked(GtkWidget *widget, gpointer data)
+{
+	UNUSED(widget);
+	UNUSED(data);
+	return;
+	// no recognized objects, just leave
+}
+
+
 void
 cbUiButtonPressed(GtkWidget *widget, gpointer data)
 {
