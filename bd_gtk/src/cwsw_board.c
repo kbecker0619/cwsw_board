@@ -1,7 +1,5 @@
-/** @file bd_gtk.c
- *	@brief	One-sentence short description of file.
- *
- *	Description:
+/** @file
+ *	@brief	Board support for the GTK "board".
  *
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *

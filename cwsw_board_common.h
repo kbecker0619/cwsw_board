@@ -42,6 +42,27 @@ enum eErrorCodes_Board {
 };
 
 
+/** Debounce time for board-level button-handling state machine.
+ *	@todo Move this to a button-handling header.
+ */
+#if 0
+// this timeout value is long enough to read 64 bits of input stream, w/ ~100+ ms margin
+enum { kTmButtonDebounceTime = tmr500ms + tmr250ms };
+#else
+		/* this timeout is just "comfortably" shy of enough time to read the full defined input
+		 *	value of "noisy" input bits. the expected behavior then, is that this should transition
+		 *	back to the released state, and immediately transition back here because the input stream
+		 *	will have a few more "1" bits left in it. this 2nd invocation will result in a "solid"
+		 *	debounced "press" reading.
+		 * we know that this will take more overall time but for demonstration purposes will have
+		 *	the same end result. timing: 1 cycle for our exit action, 1 cycle for "released"'s
+		 *	entry action, 1 cycle for "released" to read a "1" bit, 1 cycle for "released"'s exit
+		 *	action, 1 cycle for our entry action, and then we can begin accumulating debouncing bits.
+		 */
+enum { kTmButtonDebounceTime = tmr500ms + tmr100ms };
+#endif
+
+
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
 // ============================================================================

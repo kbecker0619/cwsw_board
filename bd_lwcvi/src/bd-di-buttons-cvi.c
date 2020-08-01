@@ -1,10 +1,12 @@
-/** @file
- *	@brief	Board-specific button-reading functions.
+/** @file bd-di-buttons-cvi.c
+ *	@brief	One-sentence short description of file.
+ *
+ *	Description:
  *
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
  *	Original:
- *	Created on: Jun 28, 2020
+ *	Created on: Jul 30, 2020
  *	Author: kevin
  */
 
@@ -26,15 +28,6 @@
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
-/// States for this State Machine.
-typedef enum eSmStates {
-	kStateStart,
-	kStateReleased,
-	kStateDebouncePress,
-	kStatePressed,
-	kStateDebounceRelease
-} tSmStates;
-
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
 // ============================================================================
@@ -54,3 +47,4 @@ typedef enum eSmStates {
 // ============================================================================
 // ----	Public Functions ------------------------------------------------------
 // ============================================================================
+
