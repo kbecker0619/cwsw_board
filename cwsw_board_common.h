@@ -34,11 +34,15 @@ extern "C" {
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
+/** Error codes relevant to the BSP.
+ */
 enum eErrorCodes_Board {
-	kErr_Bsp_NoError = kErr_Lib_NoError,
-	kErr_Bsp_NotInitialized,
-	kErr_Bsp_BadParm,
-	kErr_Bsp_InitFailed
+	kErr_Bsp_NoError = kErr_Lib_NoError,	//!< No error. Aligned w/ base Library error codes.
+	kErr_Bsp_NotInitialized,            	//!< Not initialized. Aligned w/ base Library error codes.
+	kErr_Bsp_BadParm,                   	//!< Bad parameter. Aligned w/ base Library error codes.
+	kErr_Bsp_InitFailed,					//!< Generic "failed" return code; specific to BSP.
+	kErr_Board_NoMem,						//!< Not enough memory to initialize UI framework. Specific to LabWindows/CVI.
+	kErr_Board_NoPanel						//!< UI Panel failed to load for any one of a number of reasons. Specific to LabWindows/CVI.
 };
 
 

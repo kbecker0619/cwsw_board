@@ -24,12 +24,12 @@
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
-//  consecutive 1s: 	    8          7        6       5      4     3   2  1 (meaningless noise to fill 64 bits)
-//	noisy input:		1111 1111 0111 1111 0111 1110 1111 1011 1101 1101 1010 0000 0011 1111 0000 0001
+//  consecutive 1s: 	----4---- ----3---- ----2---- ----1----
+//	noisy input:		1111 1111 0111 1111 0111 1110 1111 1011
 #define noisypatterna	0xFF7F7EFB
 
-//	consecutive 0s:          8          7        6        5     4    3    2  1
-// noisy input:			1000 0000 0000 1000 0000 1000 0001 0000 0100 0010 0010 01010
+//	consecutive 0s:     ----4---- ----3---- ----2---- ----1----
+// noisy input:			1000 0000 0000 1000 0000 1000 0001 0000
 //						0x1 0010 1020 844A
 #define noisypatternb	0x10010102
 
@@ -74,4 +74,86 @@ di_read_next_button_input_bit(uint32_t idx)
 		retval = BIT_TEST(buttonstatus, idx);
 	}
 	return retval;
+}
+
+int CVICALLBACK
+cbBtnGo(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_LEFT_CLICK:
+			break;
+		case EVENT_COMMIT:	// LW/CVI's equivalent to a mouse-up (release button) event
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK
+cbBtnPause(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK
+cbBtnWalk(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK
+cbBtnYellow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int CVICALLBACK 
+cbPanel(int panel, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_KEYPRESS:
+			break;
+
+		case EVENT_GOT_FOCUS:
+			break;
+
+		case EVENT_LOST_FOCUS:
+			break;
+
+		case EVENT_CLOSE:
+			QuitUserInterface(0);
+			break;
+
+		default:
+			break;
+	}
+
+	return 0;
 }

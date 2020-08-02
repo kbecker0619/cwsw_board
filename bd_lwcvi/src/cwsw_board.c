@@ -1,8 +1,8 @@
 /** @file
  *	@brief	Board support for the LabWindows/CVI "board".
- *	
+ *
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
- *	
+ *
  *	Original:
  *	Created on: Jul 31, 2020
  *	Author: kevin
@@ -41,10 +41,11 @@
 // ----	Module-level Variables ------------------------------------------------
 // ========================================================================== {
 
-
 static bool initialized = false;
 
 static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
+
+static int panelHandle = NULL;
 
 
 // ========================================================================== }
@@ -60,6 +61,18 @@ static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
 uint16_t
 Cwsw_Board__Init(void)
 {
+	if(!Get(Cwsw_Arch, Initialized))
+	{
+		return kErr_Lib_NotInitialized;
+	}
+
+	// initialize UI lib. in this environment, no command line options are available (argc, argv).
+	if(!InitCVIRTE (0, NULL, 0))	{ return kErr_Board_NoMem; }						/* out of memory */
+	panelHandle = LoadPanel (0, "board.uir", PANEL);
+	if(panelHandle < 0)				{ return kErr_Board_NoPanel; }
+
+	DisplayPanel (panelHandle);
+
 	initialized = true;
 	return kErr_Bsp_NoError;
 }
@@ -76,7 +89,8 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 	extern void Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx);
 	pOsEvqx = pEvqx;		// save for heartbeat usage
 	Btn_SetQueue(pEvqx);
-//	gtk_main();
+	RunUserInterface ();
+	DiscardPanel (panelHandle);
 }
 
 // ---- /General Functions -------------------------------------------------- }

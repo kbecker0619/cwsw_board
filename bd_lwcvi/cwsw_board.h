@@ -22,10 +22,12 @@
 
 // ----	Project Headers -------------------------
 #include "tedlos.h"
-//#include <gtk/gtk.h>	// labwindows headers
+#include <cvirte.h>
+#include <userint.h>
 
 // ----	Module Headers --------------------------
 #include "../cwsw_board_common.h"
+#include "cwsw_board_ui.h"
 
 
 #ifdef	__cplusplus
@@ -40,12 +42,12 @@ extern "C" {
 /** Button IDs for this board. */
 enum eBoardButtons
 {
-	kBoardButtonNone,
-	kBoardButton0,
-	kBoardButton1,
-	kBoardButton2,
-	kBoardButton3,
-	kBoardNumButtons
+	kBoardButtonNone,/**< kBoardButtonNone */
+	kBoardButton0,   /**< kBoardButton0 */
+	kBoardButton1,   /**< kBoardButton1 */
+	kBoardButton2,   /**< kBoardButton2 */
+	kBoardButton3,   /**< kBoardButton3 */
+	kBoardNumButtons /**< kBoardNumButtons */
 };
 
 enum eBoardLeds
