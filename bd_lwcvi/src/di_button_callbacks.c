@@ -125,15 +125,15 @@ cbBtnYellow(int panel, int control, int event, void *callbackData, int eventData
 	switch (event)
 	{
 		case EVENT_COMMIT:
-
 			break;
+
 		default:
 			break;
 	}
 	return 0;
 }
 
-int CVICALLBACK 
+int CVICALLBACK
 cbPanel(int panel, int event, void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)

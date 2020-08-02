@@ -56,6 +56,21 @@ static int panelHandle = NULL;
 // ----	Public Functions ------------------------------------------------------
 // ========================================================================== {
 
+int CVICALLBACK
+tmHeartbeat(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+	case EVENT_TIMER_TICK:
+		tedlos_schedule(pOsEvqx);
+		break;
+
+	default:
+		break;
+	}
+
+	return 0;
+}
 
 // ---- General Functions --------------------------------------------------- {
 uint16_t
@@ -72,6 +87,11 @@ Cwsw_Board__Init(void)
 	if(panelHandle < 0)				{ return kErr_Board_NoPanel; }
 
 	DisplayPanel (panelHandle);
+
+	SET(kBoardLed1, kLogicalOff);
+	SET(kBoardLed2, kLogicalOff);
+	SET(kBoardLed3, kLogicalOff);
+	SET(kBoardLed4, kLogicalOff);
 
 	initialized = true;
 	return kErr_Bsp_NoError;
@@ -90,7 +110,7 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 	pOsEvqx = pEvqx;		// save for heartbeat usage
 	Btn_SetQueue(pEvqx);
 	RunUserInterface ();
-	DiscardPanel (panelHandle);
+	DiscardPanel(panelHandle);
 }
 
 // ---- /General Functions -------------------------------------------------- }
@@ -100,6 +120,8 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 void
 Cwsw_Board__Set_kBoardLed1(bool value)
 {
+	int a = SetCtrlVal(panelHandle, PANEL_Red, value);
+
 }
 
 void

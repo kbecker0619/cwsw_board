@@ -1,4 +1,9 @@
-#include <cvirte.h>		
+/* This is intended to be the file that is created by the LabWindows/CVI UI editor.
+ * It is not intended to be used directly in the demonstration project, as it is an architectural
+ * misfit. Instead, copy or move the contents of this generated file to the modules appropriate to
+ * the architecture.
+ */
+#include <cvirte.h>
 #include <userint.h>
 #include "board.h"
 
@@ -16,62 +21,3 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
-int CVICALLBACK cbBtnGo (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			break;
-	}
-	return 0;
-}
-
-int CVICALLBACK cbBtnPause (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			break;
-	}
-	return 0;
-}
-
-int CVICALLBACK cbBtnYellow (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			break;
-	}
-	return 0;
-}
-
-int CVICALLBACK cbPanel (int panel, int event, void *callbackData,
-		int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_KEYPRESS:
-
-			break;
-		case EVENT_GOT_FOCUS:
-
-			break;
-		case EVENT_LOST_FOCUS:
-
-			break;
-		case EVENT_CLOSE:
-
-			break;
-		default:
-
-			break;
-	}
-	return 0;
-}
