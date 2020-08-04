@@ -21,3 +21,23 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
+int CVICALLBACK cbBtn0 (int panel, int control, int event,
+		void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+
+			break;
+		case EVENT_LEFT_CLICK:
+
+			break;
+		case EVENT_KEYPRESS:
+
+			break;
+		default:
+
+			break;
+	}
+	return 0;
+}

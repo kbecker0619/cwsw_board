@@ -69,66 +69,101 @@ di_read_next_button_input_bit(uint32_t idx)
 	buttoninputbits[idx] /= 2;
 	if((!retval) && (!buttoninputbits[idx]))	// if this bit is clear, it could be because the input stream is depleted; if the input stream is also depleted...
 	{	// ... then check whether the "button pressed" flag is true
-		// toggle buttons didn't work as i wanted - each press also gets a release, but it's a press-release sandwich where the "pressed" status is the meat
-//		retval = gtk_toggle_button_get_active((GtkToggleButton *)btn0);	// todo: return state of last button pressed
 		retval = BIT_TEST(buttonstatus, idx);
 	}
 	return retval;
 }
 
 int CVICALLBACK
-cbBtnGo(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+cbBtn0(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
-		case EVENT_LEFT_CLICK:
-			break;
-		case EVENT_COMMIT:	// LW/CVI's equivalent to a mouse-up (release button) event
-			break;
-		default:
-			break;
+	case EVENT_LEFT_CLICK:
+		/* using the pattern established for GTK, if the current bit stream is not empty, add the
+		 * new bit stream to the "far end" of the current bitstream. otherwise, just add the new
+		 * bitstream directly.
+		 */
+		buttoninputbits[kBoardButton0] += cleanpatterna * 4096; // clean pattern is 12 bits
+		BIT_SET(buttonstatus, kBoardButton0);
+		break;
+
+	case EVENT_COMMIT:	// LW/CVI's equivalent to a mouse-up (button release) event
+		buttoninputbits[kBoardButton0] += ((cleanpatternb & 0xFFF) * 4096);
+		BIT_CLR(buttonstatus, kBoardButton0);
+
+		/* running commentaire, to be moved to more formal documentation.
+		 * - if the DI button SM is in the "released" state, the 1st 1 bit will provoke a transition to
+		 *   the debounce-press state; after the bit stream settles down to all 0s, it'll return to the
+		 *   released state.
+		 */
+		break;
+
+	default:
+		break;
 	}
 	return 0;
 }
 
 int CVICALLBACK
-cbBtnPause(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+cbBtn1(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
-		case EVENT_COMMIT:
+	case EVENT_LEFT_CLICK:
+		buttoninputbits[kBoardButton1] += cleanpatterna * 4096; // clean pattern is 12 bits
+		BIT_SET(buttonstatus, kBoardButton1);
+		break;
 
-			break;
-		default:
-			break;
+	case EVENT_COMMIT:
+		buttoninputbits[kBoardButton1] += ((cleanpatternb & 0xFFF) * 4096);
+		BIT_CLR(buttonstatus, kBoardButton1);
+		break;
+
+	default:
+		break;
 	}
 	return 0;
 }
 
 int CVICALLBACK
-cbBtnWalk(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+cbBtn2(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
-		case EVENT_COMMIT:
+	case EVENT_LEFT_CLICK:
+		buttoninputbits[kBoardButton2] += cleanpatterna * 4096; // clean pattern is 12 bits
+		BIT_SET(buttonstatus, kBoardButton2);
+		break;
 
-			break;
-		default:
-			break;
+	case EVENT_COMMIT:
+		buttoninputbits[kBoardButton2] += ((cleanpatternb & 0xFFF) * 4096);
+		BIT_CLR(buttonstatus, kBoardButton2);
+		break;
+
+	default:
+		break;
 	}
 	return 0;
 }
 
 int CVICALLBACK
-cbBtnYellow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
+cbBtn3(int panel, int control, int event, void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
-		case EVENT_COMMIT:
-			break;
+	case EVENT_LEFT_CLICK:
+		buttoninputbits[kBoardButton3] += cleanpatterna * 4096; // clean pattern is 12 bits
+		BIT_SET(buttonstatus, kBoardButton3);
+		break;
 
-		default:
-			break;
+	case EVENT_COMMIT:
+		buttoninputbits[kBoardButton3] += ((cleanpatternb & 0xFFF) * 4096);
+		BIT_CLR(buttonstatus, kBoardButton3);
+		break;
+
+	default:
+		break;
 	}
 	return 0;
 }

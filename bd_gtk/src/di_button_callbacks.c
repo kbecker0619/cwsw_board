@@ -142,7 +142,6 @@ cbUiButtonPressed(GtkWidget *widget, gpointer data)
 	}
 #endif
 	BIT_SET(buttonstatus, idx);
-	return;
 }
 
 void

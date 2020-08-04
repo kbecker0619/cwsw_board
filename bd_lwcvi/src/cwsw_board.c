@@ -45,7 +45,7 @@ static bool initialized = false;
 
 static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
 
-static int panelHandle = NULL;
+static int hndPanel = NULL;
 
 
 // ========================================================================== }
@@ -76,6 +76,7 @@ tmHeartbeat(int panel, int control, int event, void *callbackData, int eventData
 uint16_t
 Cwsw_Board__Init(void)
 {
+	int initrc = 0;
 	if(!Get(Cwsw_Arch, Initialized))
 	{
 		return kErr_Lib_NotInitialized;
@@ -83,10 +84,20 @@ Cwsw_Board__Init(void)
 
 	// initialize UI lib. in this environment, no command line options are available (argc, argv).
 	if(!InitCVIRTE (0, NULL, 0))	{ return kErr_Board_NoMem; }						/* out of memory */
-	panelHandle = LoadPanel (0, "board.uir", PANEL);
-	if(panelHandle < 0)				{ return kErr_Board_NoPanel; }
+	hndPanel = LoadPanel (0, "board.uir", PANEL);
+	if(hndPanel < 0)				{ return kErr_Board_NoPanel; }
 
-	DisplayPanel (panelHandle);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Green, ATTR_OFF_COLOR, VAL_GRAY);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Yellow, ATTR_OFF_COLOR, VAL_GRAY);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Red, ATTR_OFF_COLOR, VAL_GRAY);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Walk, ATTR_OFF_COLOR, VAL_GRAY);
+
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Green, ATTR_ON_COLOR, VAL_GREEN);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Yellow, ATTR_ON_COLOR, VAL_YELLOW);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Red, ATTR_ON_COLOR, VAL_RED);
+	if(initrc >= 0)	initrc = SetCtrlAttribute(hndPanel, PANEL_Walk, ATTR_ON_COLOR, VAL_GREEN);
+
+	if(initrc >= 0)	initrc = DisplayPanel(hndPanel);
 
 	SET(kBoardLed1, kLogicalOff);
 	SET(kBoardLed2, kLogicalOff);
@@ -110,7 +121,7 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 	pOsEvqx = pEvqx;		// save for heartbeat usage
 	Btn_SetQueue(pEvqx);
 	RunUserInterface ();
-	DiscardPanel(panelHandle);
+	DiscardPanel(hndPanel);
 }
 
 // ---- /General Functions -------------------------------------------------- }
@@ -120,23 +131,26 @@ Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 void
 Cwsw_Board__Set_kBoardLed1(bool value)
 {
-	int a = SetCtrlVal(panelHandle, PANEL_Red, value);
+	int a = SetCtrlVal(hndPanel, PANEL_Green, value);
 
 }
 
 void
 Cwsw_Board__Set_kBoardLed2(bool value)
 {
+	int a = SetCtrlVal(hndPanel, PANEL_Yellow, value);
 }
 
 void
 Cwsw_Board__Set_kBoardLed3(bool value)
 {
+	int a = SetCtrlVal(hndPanel, PANEL_Red, value);
 }
 
 void
 Cwsw_Board__Set_kBoardLed4(bool value)
 {
+	int a = SetCtrlVal(hndPanel, PANEL_Walk, value);
 }
 
 // ---- /Common API / Highly Customized ------------------------------------- }
