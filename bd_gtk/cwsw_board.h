@@ -1,11 +1,11 @@
 /** @file
  *	@brief	Board Support Package Header File for board that uses GTK for the simulated board - Windows or Linux desktop.
  *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jun 26, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 #ifndef BOARD_BD_GTK_H

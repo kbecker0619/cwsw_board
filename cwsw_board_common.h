@@ -4,13 +4,12 @@
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Feb 14, 2018
- *	Author: KBECKE35
+ *	@author Kevin L. Becker
  */
 
-#ifndef CWSW_BOARD_CWSW_BOARD_COMMON_H_
-#define CWSW_BOARD_CWSW_BOARD_COMMON_H_
+#ifndef CWSW_BOARD_COMMON_H
+#define CWSW_BOARD_COMMON_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -483,4 +482,4 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 #endif								/* } */
 // ==== /COMPONENT DOCUMENTATION ============================================ }
 
-#endif /* CWSW_BOARD_CWSW_BOARD_COMMON_H_ */
+#endif /* CWSW_BOARD_COMMON_H */

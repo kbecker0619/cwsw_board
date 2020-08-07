@@ -1,11 +1,11 @@
 /** @file
  *	@brief	Board-specific button-reading functions.
  *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jun 28, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 // ============================================================================

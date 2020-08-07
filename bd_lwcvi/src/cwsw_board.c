@@ -1,11 +1,11 @@
 /** @file
  *	@brief	Board support for the LabWindows/CVI "board".
  *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jul 31, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 // ============================================================================

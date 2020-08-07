@@ -4,9 +4,8 @@
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Dec 21, 2017
- *	Author: kbecker
+ *	@author Kevin L. Becker
  */
 
 #ifndef CWSW_BOARD_H

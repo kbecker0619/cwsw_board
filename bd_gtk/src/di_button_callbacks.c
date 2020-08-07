@@ -1,13 +1,11 @@
-/** @file di_button_callbacks.c
+/** @file
  *	@brief	One-sentence short description of file.
  *
- *	Description:
- *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jun 29, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 // ============================================================================

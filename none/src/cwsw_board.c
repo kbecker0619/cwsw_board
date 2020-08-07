@@ -5,16 +5,13 @@
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Dec 27, 2017
- *	Author: kbecker
+ *	@author Kevin L. Becker
  */
 
 // ============================================================================
 // ----	Include Files ---------------------------------------------------------
 // ============================================================================
-
-#include "projcfg.h"
 
 // ----	System Headers --------------------------
 

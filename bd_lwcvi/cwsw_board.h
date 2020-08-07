@@ -2,11 +2,11 @@
  *	@brief	Board Support Package Header File for board that uses LabWindows/CVI for the simulated
  *	board - Windows desktop.
  *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jul 30, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 #ifndef BOARD_BD_LWCVI_H

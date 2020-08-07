@@ -1,11 +1,11 @@
 /** @file
  *	@brief	Board support for the GTK "board".
  *
+ *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Original:
  *	Created on: Jun 26, 2020
- *	Author: kevin
+ *	@author Kevin L. Becker
  */
 
 // ============================================================================
@@ -16,7 +16,7 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-#include "cwsw_arch.h"		// Get(Iniitalized)
+#include "cwsw_arch.h"		// Get(Initialized)
 
 // ----	Module Headers --------------------------
 #include "cwsw_board.h"
