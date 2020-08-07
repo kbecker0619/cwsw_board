@@ -190,12 +190,12 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
  *	@tableofcontents
  *		@subpage Board_Responsibilities \n
  *		@subpage Board_Constraints \n
- *		@subpage Board_Interactions \n
- *		@subpage Board_Composition \n
+ *		 subpage Board_Interactions \n
+ *		 subpage Board_Composition \n
  *		@subpage Board_Resources \n
- *		@subpage Board_Interfaces \n
- *		@subpage Board_Main_Obj_Diag \n
- *		@subpage Board_Dsm \n
+ *		 subpage Board_Interfaces \n
+ *		 subpage Board_Main_Obj_Diag \n
+ *		 subpage Board_Dsm \n
  */
 
 /**	@page Board_Responsibilities				Component Responsibilities
@@ -226,7 +226,7 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
  *	@tableofcontents
  *	To add the facilities of the CWSW Board component to your project, follow these steps.
  *
- *	@Note Author's note: These steps are generic for all IDEs; however, the
+ *	@note Author's note: These steps are generic for all IDEs; however, the
  *	specific details (e.g., screen shots) are oriented toward IDEs based on
  *	Eclipse, such as NXP S32DS; ARM DS-5; or TI's Code Composer.
  *	While I have implemented these steps in Microchip's MPLAB v4.x, the steps
@@ -239,9 +239,9 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
  *	-# [Configuration](#bd_comp_configuration)
  *	-# [Update Initialization Code](#bd_init_code)
  *	-# Optional APIs.
- */
 
-	/**	@page Board_Integration
+
+
 	 *	@section bd_source_share				Share the Source
 	 *	Designed to be a reusable component, the CWSW Board component is
 	 *	organized into a reusable section, and requires additional project-
@@ -338,9 +338,8 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 	 *	sharing mechanism from your source versioning system, use the most
 	 *	appropriate linking or referencing mechanism is appropriate.)</em>
 	 *	\n \n
-	 */
 
-	/**	@page Board_Integration
+
 	 *	@section bd_add_depends					Add Component Dependencies
 	 *
 	 *	The <code>cwsw_board</code> component has the following dependencies
@@ -382,9 +381,8 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 	 *	@endcode
 	 *
 	 *	\n \n
-	 */
 
-	/**	@page Board_Integration
+
 	 *	@section bd_update_includes				Update Includes paths
 	 *	@subsection bd_update_includes_paths	Include Paths
 	 *	Update your build system to add the relative paths to the selected
@@ -433,9 +431,9 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 	 *	In makefile-based projects, simply omit reference to the undesired
 	 *	board folders.
 	 *	\n \n
-	 */
 
-	/**	@page Board_Integration
+
+
 	 *	@section bd_comp_configuration			Configure the Reusable Component and its dependencies
 	 *	In some or the supported architectures, no configuration beyond what
 	 *	has already been described is necessary. In some others, additional
@@ -445,9 +443,9 @@ enum { Cwsw_Board = 2 };	/* Component ID for boards; all supported boards have t
 	 *	easy methods of accomplishing this:
 	 *	+ command-line defines
 	 *	+ preprocessor defines in the file "projcfg.h"
-	 */
 
-	/**	@page Board_Integration					Integrating the Reusable Component
+
+
 	 *	@section bd_init_code					Update application's initialization code
 	 *	At the time of this writing, none of the supported boards require any
 	 *	secondary initialization (e.g., initialization calls made after the

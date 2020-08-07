@@ -191,10 +191,9 @@ stStart(ptEvQ_Event pev, uint32_t *pextra)
 }
 
 /**	Implement the Button Released state of the SM.
- *	@param idx
- *	@return
+
  *	@note If return here is due to a stuck-button event, this state will continue to read a stream
- *		  of "1" bits from the DI layer. In that case, there will be a continue cycle between this
+ *		  of "1" bits from the DI layer. In that case, there will be a continual cycle between this
  *		  state, debounce-press, and pressed, then back here. \n
  *		  The default SM has a special "stuck" state, which is intended to eliminate this cycle, but
  *		  we wanted to describe the behavior if something should go wrong.
