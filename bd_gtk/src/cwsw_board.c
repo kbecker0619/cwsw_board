@@ -243,10 +243,11 @@ Cwsw_Board__Get_Initialized(void)
 	return initialized;
 }
 
+/// @todo Eliminate this dependency - buttons depend on the board; the board should not depend on the buttons.
+#include "cwsw_buttons.h"
 void
 Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
 {
-	extern void Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx);
 	pOsEvqx = pEvqx;		// save for heartbeat usage
 	Btn_SetQueue(pEvqx);
 	gtk_main();

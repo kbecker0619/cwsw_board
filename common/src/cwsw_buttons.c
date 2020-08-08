@@ -1,5 +1,5 @@
 /** @file
- *	@brief	Button-handling state machine common to all boards.
+ *	@brief	Implementation of Button-handling state machine common to all boards.
  *
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
@@ -16,10 +16,10 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-#include "cwsw_sme.h"
+#include "cwsw_board.h"
 
 // ----	Module Headers --------------------------
-#include "cwsw_board.h"
+#include "cwsw_buttons.h"
 
 
 // ============================================================================
@@ -29,9 +29,25 @@
 /// "Reason3" reasons for exiting a state.
 enum { kReasonNone, kReasonTwitchNoted, kReasonDebounced, kReasonTimeout, kReasonButtonUnstuck };
 
-/// Stuck button timeout value.
 /// @todo Move this to a board-specific calibration.
-enum { kButtonStuckTimeoutValue = tmr1000ms * 30 };
+enum eButtonCalibrationValues {
+	/// Stuck button timeout value.
+	kButtonStuckTimeoutValue = tmr1000ms * 30,
+
+	/// Debounce time for board-level button-handling state machine.
+	/* this timeout is just "comfortably" shy of enough time to read the full defined input
+	 *	value of "noisy" input bits. the expected behavior then, is that this should transition
+	 *	back to the released state, and immediately transition back here because the input stream
+	 *	will have a few more "1" bits left in it. this 2nd invocation will result in a "solid"
+	 *	debounced "press" reading.
+	 * we know that this will take more overall time but for demonstration purposes will have
+	 *	the same end result. timing: 1 cycle for our exit action, 1 cycle for "released"'s
+	 *	entry action, 1 cycle for "released" to read a "1" bit, 1 cycle for "released"'s exit
+	 *	action, 1 cycle for our entry action, and then we can begin accumulating debouncing bits.
+	 */
+	// 750 ms is long enough to read 64 bits of input stream, w/ ~100+ ms margin
+	kTmButtonDebounceTime = tmr500ms + tmr100ms
+};
 
 
 // ============================================================================

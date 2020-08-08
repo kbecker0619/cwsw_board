@@ -78,7 +78,6 @@ extern tCwswSwAlarm	Btn_tmr_ButtonRead;
 
 // ---- Discrete Functions -------------------------------------------------- {
 extern uint16_t	bd_gtk__Init(void);
-extern void		Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra);
 extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
 
 // ---- /Discrete Functions ------------------------------------------------- }
