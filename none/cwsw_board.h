@@ -156,43 +156,6 @@ typedef enum eBoardLeds				tBoardLed;
 // --- discrete functions --------------------------------------------------- {
 
 /* Function:
-	void Cwsw_Board__UsbVbusSwitchStateSet(tBrdUsbVbusSwitchState state);
-
-  Summary:
-	This function enables or disables the USB VBUS switch on the board.
-
-  Description:
-	This function enables or disables the VBUS switch on the board.
-
-  Precondition:
-	BSP_Initialize() should have been called.
-
-  Parameters:
-	state - If kBrdUsbVbusSwitchState_Enable, then the USB VBUS switch is
-			enabled and VBUS is supplied on the USB.
-			If kBrdUsbVbusSwitchState_Disable, then the USB VBUS
-			switch is disabled and VBUS is not supplied on the USB.
-
-  Returns:
-	None.
-
-  Example:
-	<code>
-
-	// Initialize the BSP
-	BSP_Initialize();
-
-	// Enable the VBUS switch.
-	Cwsw_Board__UsbVbusSwitchStateSet(kBrdUsbVbusSwitchState_Enable);
-
-	</code>
-
-  Remarks:
-	None
-*/
-extern void Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state);
-
-/* Function:
 	tBrdUserSwitchState BSP_SwitchStateGet(tBrdUserSwitch switch);
 
   Summary:
