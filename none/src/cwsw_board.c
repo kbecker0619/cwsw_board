@@ -48,23 +48,6 @@ static bool initialized = false;
 // ----	Private Prototypes ----------------------------------------------------
 // ============================================================================
 
-/**	Set the enable/disable status of the USB VBUS switch.
- *	This function is a shell on top of the functionality provided by the MHC-generated code; we
- *	break it apart like this because in our thinking, the MHC intermingles too much between the
- *	capabilities of the board, and the business logic that relies on those capabilities.
-*/
-void
-Cwsw_Board__UsbVbusSwitchStateSet(tDO_LogicalValues state)
-{
-	UNUSED(state);
-	/* Enable or disable the VBUS switch */
-	/* in this instance, the logical value passed in is of the same polarity as
-	 * the physical state required to enable or disable the USB V switch.
-	 */
-	PLIB_PORTS_PinWrite( PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_5, state );
-}
-
-
 // ============================================================================
 // ----	Public Functions ------------------------------------------------------
 // ============================================================================

@@ -113,7 +113,7 @@ Cwsw_Board__Init(void)
 
 	/* Construct a GtkBuilder instance and load our UI description */
 	pUiPanel = gtk_builder_new();
-	if(gtk_builder_add_from_file(pUiPanel, "../app/board.ui", &error) == 0)
+	if(gtk_builder_add_from_file(pUiPanel, "../../app/board.ui", &error) == 0)
 	{
 		g_printerr("Error loading file: %s\n", error->message);
 		g_clear_error(&error);
