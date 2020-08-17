@@ -72,37 +72,21 @@ enum eBrdUsbVbusSwitchState
 	kBrdUsbVbusSwitchState_Enable = 1
 };
 
-/** BSP Switch.
- *
- * Summary:
- * 	Defines the switches available on this board.
- *
- * Description:
- * 	This enumeration defines the switches available on this board.
- *
- * Remarks:
- * 	None.
- */
-#if (XPRJ_Debug_CVI)
-enum eBrdSwitch
+
+/** Button IDs for this board. */
+enum eBoardButtons
 {
-	kBrdSwitch1 = PANEL_BTN_1,
-	kBrdSwitch2 = PANEL_BTN_2,
-	kBrdSwitch3 = PANEL_BTN_3,
-	kBrdNumSwitches = 3
+	kBoardButtonNone,
+	kBoardButton0,
+	kBoardButton1,
+	kBoardButton2,
+	kBoardButton3,
+	kBoardButton4,
+	kBoardButton5,
+	kBoardButton6,
+	kBoardButton7,
+	kBoardNumButtons
 };
-
-#else
-enum eBrdSwitch
-{
-	kBrdSwitch1,
-	kBrdSwitch2,
-	kBrdSwitch3,
-	kBrdNumSwitches = 3
-};
-
-#endif
-
 
 /** tBoardLed.
  * Summary:
