@@ -148,7 +148,7 @@ extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
 /** Target for `SET(kBoardLed1, kLogicalOff);`
  *	This function is equivalent to an arch-layer function that directly writes to the ports that
  *	drive the output "LED1".
- *	@param [in]	value	On or off indication. In this implementation, there is no notion of "tristate".
+ *	@param [in]	onoff On or off indication. In this implementation, there is no notion of "tristate".
  *	@note This is a "local" API, not designed to work across components.
  *	@{
  */
