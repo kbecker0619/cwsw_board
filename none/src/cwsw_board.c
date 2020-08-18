@@ -94,3 +94,29 @@ Cwsw_Board__Get_Initialized(void)
 	return initialized;
 }
 
+
+void
+Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
+{
+}
+
+
+void
+Cwsw_Board__Set_kBoardLed1(bool value)
+{
+}
+
+void
+Cwsw_Board__Set_kBoardLed2(bool value)
+{
+}
+
+void
+Cwsw_Board__Set_kBoardLed3(bool value)
+{
+}
+
+void
+Cwsw_Board__Set_kBoardLed4(bool value)
+{
+}

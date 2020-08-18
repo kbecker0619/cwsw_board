@@ -139,61 +139,33 @@ typedef enum eBoardLeds				tBoardLed;
 
 // --- discrete functions --------------------------------------------------- {
 
-/* Function:
-	tBrdUserSwitchState BSP_SwitchStateGet(tBrdUserSwitch switch);
-
-  Summary:
-	Returns the present state (pressed or not pressed) of the specified switch.
-
-  Description:
-	This function returns the present state (pressed or not pressed) of the
-	specified switch.
-
-  Precondition:
-	BSP_Initialize() should have been called.
-
-  Parameters:
-	switch  - The switch whose state needs to be obtained.
-
-  Returns:
-	The pressed released state of the switch.
-
-  Example:
-	<code>
-
-	// Initialize the BSP
-	BSP_Initialize();
-
-	// Check the state of the switch.
-	if(BSP_SWITCH_STATE_PRESSED == BSP_SwitchStateGet(kBrdSwitch1))
-	{
-		// This means that Switch 1 on the board is pressed.
-	}
-
-	</code>
-
-  Remarks:
-	None
-*/
-//extern tBrdUserSwitchState BSP_SwitchStateGet(tBrdUserSwitch bspSwitch);
+extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
 
 // --- /discrete functions -------------------------------------------------- }
 
 // --- targets for Get/Set APIS --------------------------------------------- {
 
-/* Target for some of the expansions to the Set(Cwsw_Board, Resource, xxx) interface */
-#define Cwsw_Board__Set_UsbVbus(value)			Cwsw_Board__UsbVbusSwitchStateSet(value)
+/** Target for `SET(kBoardLed1, kLogicalOff);`
+ *	This function is equivalent to an arch-layer function that directly writes to the ports that
+ *	drive the output "LED1".
+ *	@param [in]	value	On or off indication. In this implementation, there is no notion of "tristate".
+ *	@note This is a "local" API, not designed to work across components.
+ *	@{
+ */
+#define SET_kBoardLed1(onoff)				Set(Cwsw_Board, kBoardLed1, onoff)
+#define SET_kBoardLed2(onoff)				Set(Cwsw_Board, kBoardLed2, onoff)
+#define SET_kBoardLed3(onoff)				Set(Cwsw_Board, kBoardLed3, onoff)
+#define SET_kBoardLed4(onoff)				Set(Cwsw_Board, kBoardLed4, onoff)
+/**	@} */
 
-
-/* Target for some of the expansions to the Set(Cwsw_Board, Resource, xxx) interface. */
-#define Cwsw_Board__Set_kBoardLed1(value)		PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_0, value)
-#define Cwsw_Board__Set_kBoardLed2(value)		PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_1, value)
-#define Cwsw_Board__Set_kBoardLed3(value)		PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_2, value)
-//#define Cwsw_Board__Set_kBoardLed2(value)		do { if(!!(value)) { BSP_LEDOn(kBoardLed2); } else { BSP_LEDOff(kBoardLed2); } } while(0)
-
-/* Target for some of the expansions to the Get(Cwsw_Board, Resource) interface. */
-#define Cwsw_Board__Get_kBrdSwitch1()			PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_3)
-#define Cwsw_Board__Get_kBoardLed1()			PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_0)
+/** Target for `Set(Cwsw_Board, kBoardLed, on_off)`
+ * 	@{
+ */
+extern void Cwsw_Board__Set_kBoardLed1(bool value);
+extern void Cwsw_Board__Set_kBoardLed2(bool value);
+extern void Cwsw_Board__Set_kBoardLed3(bool value);
+extern void Cwsw_Board__Set_kBoardLed4(bool value);
+/**	@} */
 
 // --- /targets for Get/Set APIS -------------------------------------------- }
 

@@ -92,7 +92,7 @@ extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
  */
 enum { bd_gtk };		/* Component ID for Event Queue */
 
-/** Target for `Get(Cwsw_EvQ, xxx)` interface */
+/** Target for `Get(bd_gtk, xxx)` interface */
 #define bd_gtk__Get(resource)		bd_gtk__Get_ ## resource()
 
 
