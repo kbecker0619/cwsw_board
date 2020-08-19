@@ -76,8 +76,6 @@ static GtkBuilder *pUiPanel	= NULL;
 static GObject *pWindow		= NULL;
 static GError *error		= NULL;
 
-static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
-
 
 // ========================================================================== }
 // ----	Private Functions -----------------------------------------------------
@@ -85,6 +83,7 @@ static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
 // time handling from demo @ http://zetcode.com/gui/gtk2/gtkevents/
 //	this one designed to be called @ 1ms intervals. it is intended to simulate a 1ms heartbeat tic
 //	from a real exercise kit.
+#include "bdsched.h"
 static gboolean
 tmHeartbeat(GtkWidget *widget)
 {
@@ -241,16 +240,6 @@ bool
 Cwsw_Board__Get_Initialized(void)
 {
 	return initialized;
-}
-
-/// @todo Eliminate this dependency - buttons depend on the board; the board should not depend on the buttons.
-#include "cwsw_buttons.h"
-void
-Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
-{
-	pOsEvqx = pEvqx;		// save for heartbeat usage
-	Btn_SetQueue(pEvqx);
-	gtk_main();
 }
 
 // ---- /General Functions -------------------------------------------------- }
