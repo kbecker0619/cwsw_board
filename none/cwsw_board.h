@@ -139,8 +139,6 @@ typedef enum eBoardLeds				tBoardLed;
 
 // --- discrete functions --------------------------------------------------- {
 
-extern void		Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx);
-
 // --- /discrete functions -------------------------------------------------- }
 
 // --- targets for Get/Set APIS --------------------------------------------- {

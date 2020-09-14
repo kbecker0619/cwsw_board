@@ -43,8 +43,8 @@ extern "C" {
 // ----	Public API ------------------------------------------------------------
 // ============================================================================
 
-extern void Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx);
-extern void Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra);
+extern void Btn_SetQueue(tEvQ_EventID const evid, const ptEvQ_QueueCtrlEx pEvqx);
+extern void Btn_tsk_ButtonRead(tEvQ_Event evid, uint32_t extra);
 
 
 #ifdef	__cplusplus

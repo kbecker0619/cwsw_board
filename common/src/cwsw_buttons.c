@@ -61,7 +61,7 @@ enum eButtonCalibrationValues {
 tCwswSwAlarm	Btn_tmr_ButtonRead = {
 	/* .tm			= */tmr10ms,
 	/* .reloadtm	= */tmr10ms,
-	/* .pEvQX		= */&tedlos_evqx,
+	/* .pEvQX		= */NULL,
 	/* .evid		= */evButton_Task,
 	/* .tmrstate	= */kTmrState_Enabled
 };
@@ -524,17 +524,23 @@ Btn_tsk_ButtonRead(tEvQ_Event ev, uint32_t extra)	// uses DI lower layers
 
 		if(!currentstate[idxbutton])
 		{
-				// disable alarm that launches this SME via its event.
-				//	if restarted, we'll resume in the current state
-				//	need a way to restart w/ the init state.
+			// disable alarm that launches this SME via its event.
+			//	if restarted, we'll resume in the current state
+			//	need a way to restart w/ the init state.
 			Btn_tmr_ButtonRead.tmrstate = kTmrState_Disabled;
 		}
 	}	// idxbutton
 }
 
 
+/** Set button event parameters.
+ */
 void
-Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx)
+Btn_SetQueue(tEvQ_EventID const evId, const ptEvQ_QueueCtrlEx pEvqx)
 {
+	// set queue for button activity
 	pBtnEvqx = pEvqx;
+	// set parameters for timer expiration notifications
+	Btn_tmr_ButtonRead.pEvQX = pEvqx;
+	Btn_tmr_ButtonRead.evid = evId;
 }

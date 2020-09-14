@@ -43,9 +43,9 @@
 
 static bool initialized = false;
 
-static ptEvQ_QueueCtrlEx pOsEvqx = NULL;
+ptEvQ_QueueCtrlEx pOsEvqx = NULL;
 
-static int hndPanel = NULL;
+int hndPanel = NULL;
 
 
 // ========================================================================== }
@@ -112,16 +112,6 @@ bool
 Cwsw_Board__Get_Initialized(void)
 {
 	return initialized;
-}
-
-void
-Cwsw_Board__StartScheduler(ptEvQ_QueueCtrlEx pEvqx)
-{
-	extern void Btn_SetQueue(ptEvQ_QueueCtrlEx pEvqx);
-	pOsEvqx = pEvqx;		// save for heartbeat usage
-	Btn_SetQueue(pEvqx);
-	RunUserInterface ();
-	DiscardPanel(hndPanel);
 }
 
 // ---- /General Functions -------------------------------------------------- }
