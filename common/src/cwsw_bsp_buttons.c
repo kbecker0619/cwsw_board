@@ -16,10 +16,11 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-#include "cwsw_board.h"
+#include "cwsw_board.h"				// this module builds on top of the BSP
 
 // ----	Module Headers --------------------------
-#include "cwsw_buttons.h"
+#include "cwsw_bsp_buttons.h"		// public API for this module
+#include "cwsw_bsp_buttons_cfg.h"	// project-specific configuration for this module
 
 
 // ============================================================================
@@ -62,7 +63,7 @@ tCwswSwAlarm	Btn_tmr_ButtonRead = {
 	/* .tm			= */tmr10ms,
 	/* .reloadtm	= */tmr10ms,
 	/* .pEvQX		= */NULL,
-	/* .evid		= */evButton_Task,
+	/* .evid		= */0,
 	/* .tmrstate	= */kTmrState_Enabled
 };
 
@@ -128,13 +129,13 @@ stDebounceButton(ptEvQ_Event pev, uint32_t *pextra)
 		if(read_bits[thisbutton] == 0)
 		{
 			// debounce done, recognized as an open (released) button
-			evId[thisbutton] = evButton_BtnReleased;
+			evId[thisbutton] = evBtnReleased;
 			reason3[thisbutton] = kReasonDebounced;
 		}
 		else if(read_bits[thisbutton] == 0xFF)
 		{
 			// debounce done, recognized as button press, advance to next state
-			evId[thisbutton] = evButton_BtnPressed;
+			evId[thisbutton] = evBntPressed;
 			reason3[thisbutton] = kReasonDebounced;
 		}
 		else if(TM(tmrdebounce))
@@ -437,8 +438,8 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
 		// not much to do here except validate
 		switch(ev.evId)
 		{
-		case evButton_BtnReleased:	// button has been released
-		case evButton_BtnPressed:	// state change to Pressed state
+		case evBtnReleased:	// button has been released
+		case evBntPressed:	// state change to Pressed state
 			break;
 
 		default:
@@ -476,23 +477,23 @@ NotifyBtnStateChg(tEvQ_Event ev, uint32_t extra)
  */
 static tTransitionTable tblTransitions[] = {
 	// current				Reason1					Reason2		Reason3					Next State			Transition Func
-	{ stStart,				evButton_Task,			0xFF,	kReasonNone,			stButtonReleased,	NullTransition		},	// normal termination
+	{ stStart,				evButton_Task,	0xFF,	kReasonNone,			stButtonReleased,	NullTransition		},	// normal termination
 
-	{ stButtonReleased,		evButton_Task,			0xFF,	kReasonTwitchNoted,		stDebouncePress,	NullTransition		},	// normal termination: non-0 bit seen @ button
+	{ stButtonReleased,		evButton_Task,	0xFF,	kReasonTwitchNoted,		stDebouncePress,	NullTransition		},	// normal termination: non-0 bit seen @ button
 
-	{ stDebouncePress,		evButton_BtnPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NotifyBtnStateChg	},	// normal termination (debounced input is 0xFF)
-	{ stDebouncePress,		evButton_BtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NullTransition		},	// debounced input is 0. no need to post event, since debounced state hasn't changed.
-	{ stDebouncePress,		evButton_Task,			0xFF,	kReasonTimeout,			stButtonReleased,	NullTransition		},	// debounce timeout
+	{ stDebouncePress,		evBntPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NotifyBtnStateChg	},	// normal termination (debounced input is 0xFF)
+	{ stDebouncePress,		evBtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NullTransition		},	// debounced input is 0. no need to post event, since debounced state hasn't changed.
+	{ stDebouncePress,		evButton_Task,	0xFF,	kReasonTimeout,			stButtonReleased,	NullTransition		},	// debounce timeout
 
-	{ stButtonPressed,		evButton_Task,			0xFF,	kReasonTwitchNoted,		stDebounceRelease,	NullTransition		},
-	{ stButtonPressed,		evButton_Task,			0xFF,	kReasonTimeout,			stButtonStuck,		NotifyBtnStateChg	},	// button stuck, go directly back to "stuck" state
+	{ stButtonPressed,		evButton_Task,	0xFF,	kReasonTwitchNoted,		stDebounceRelease,	NullTransition		},
+	{ stButtonPressed,		evButton_Task,	0xFF,	kReasonTimeout,			stButtonStuck,		NotifyBtnStateChg	},	// button stuck, go directly back to "stuck" state
 
-	{ stDebounceRelease,	evButton_BtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NotifyBtnStateChg	},
-	{ stDebounceRelease,	evButton_BtnPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NullTransition		},
+	{ stDebounceRelease,	evBtnReleased,	0xFF,	kReasonDebounced,		stButtonReleased,	NotifyBtnStateChg	},
+	{ stDebounceRelease,	evBntPressed,	0xFF,	kReasonDebounced,		stButtonPressed,	NullTransition		},
 
 	// in the interests of simplicity (MVP), we'll jump directly back to the Released state.
 	//	we could insert another instance of the debouncer, but except for transition time, the end effect will be the same.
-	{ stButtonStuck,		evButton_Task,			0xFF,	kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
+	{ stButtonStuck,		evButton_Task,	0xFF,	kReasonButtonUnstuck,	stButtonReleased,	NotifyBtnStateChg	},
 };
 
 

@@ -105,10 +105,6 @@ extern void Cwsw_Board__Set_kBoardLed3(bool value);
 extern void Cwsw_Board__Set_kBoardLed4(bool value);
 /**	@} */
 
-/** Target 1 for TM(tmr) */
-#define GET_tmrdebounce()	Cwsw_GetTimeLeft(tmrdebounce)	/* timer local to one SM state */
-#define GET_tmrPressed()	Cwsw_GetTimeLeft(tmrPressed)	/* timer local to one SM state */
-
 // ---- /Targets for Get/Set APIs ------------------------------------------- }
 
 
