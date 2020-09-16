@@ -39,12 +39,16 @@ extern "C" {
 // ----	Public Variables ------------------------------------------------------
 // ============================================================================
 
+extern tCwswSwAlarm	Btn_tmr_ButtonRead;	// exposed mostly for OS scheduler
+
+
 // ============================================================================
 // ----	Public API ------------------------------------------------------------
 // ============================================================================
 
 extern void Btn_SetQueue(tEvQ_EventID const evid, const ptEvQ_QueueCtrlEx pEvqx);
 extern void Btn_tsk_ButtonRead(tEvQ_Event evid, uint32_t extra);
+
 
 
 #ifdef	__cplusplus
