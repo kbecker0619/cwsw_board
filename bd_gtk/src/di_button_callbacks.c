@@ -13,6 +13,7 @@
 // ============================================================================
 
 // ----	System Headers --------------------------
+#include <stdbool.h>
 
 // ----	Project Headers -------------------------
 
@@ -197,4 +198,88 @@ di_read_next_button_input_bit(uint32_t idx)
 		retval = BIT_TEST(buttonstatus, idx);
 	}
 	return retval;
+}
+
+bool
+di_button_init(GtkBuilder *pUiPanel)
+{
+	bool bad_init = false;
+
+	/* we want button-press and button-release events. for convenience and exploration, we'll also
+	 * capture the click event.
+	 */
+	btn0 = gtk_builder_get_object(pUiPanel, "btn0");// run-time association w/ "ID" field in UI
+	if(!btn0)	{ bad_init = true; }
+
+	if(!bad_init)		// connect btn0, get handle for button 1
+	{
+		g_signal_connect(btn0, "clicked",	G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn0, "pressed",	G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn0, "released",	G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn1 = gtk_builder_get_object(pUiPanel, "btn1");
+		if(!btn1)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn1, get handle for button 2
+	{
+		g_signal_connect(btn1, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn2 = gtk_builder_get_object(pUiPanel, "btn2");
+		if(!btn2)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn2, get handle for button 3
+	{
+		g_signal_connect(btn2, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn3 = gtk_builder_get_object(pUiPanel, "btn3");
+		if(!btn3)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn3, get handle for button 4
+	{
+		g_signal_connect(btn3, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn4 = gtk_builder_get_object(pUiPanel, "btn4");
+		if(!btn4)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn4, get handle for button 5
+	{
+		g_signal_connect(btn4, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn5 = gtk_builder_get_object(pUiPanel, "btn5");
+		if(!btn5)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn5, get handle for button 6
+	{
+		g_signal_connect(btn5, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn6 = gtk_builder_get_object(pUiPanel, "btn6");
+		if(!btn6)	{ bad_init = true; }
+	}
+
+	if(!bad_init)		// connect btn6, get handle for button 7
+	{
+		g_signal_connect(btn6, "clicked", G_CALLBACK(cbButtonClicked), NULL);
+		g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
+		g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
+
+		btn7 = gtk_builder_get_object(pUiPanel, "btn7");
+		if(!btn7)	{ bad_init = true; }
+	}
+
+	return bad_init;
 }

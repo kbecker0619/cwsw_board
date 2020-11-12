@@ -1,6 +1,10 @@
 /** @file
  *	@brief	Board support for the GTK "board".
  *
+ *	In the same way my Microchip MZ demo board, or my NXP 5748G demo board, or my STI demo board, all
+ *	have some general purpose buttons, rheostats, LEDs, and displays, so here does the GTK "board" have
+ *	a panel that has 8 buttons, 8 "LEDs", and a text box.
+ *
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
@@ -21,9 +25,9 @@
 // ----	Module Headers --------------------------
 #include "cwsw_board.h"
 
-#include "ManagedAlarms.h"	// temporary until i get architecture sorted out. the BSP should not know about
-#include "tedlosevents.h"
-
+//#include "ManagedAlarms.h"	// temporary until i get architecture sorted out. the BSP should not know about
+//#include "tedlosevents.h"
+//
 
 // ========================================================================== }
 // ----	Constants -------------------------------------------------------------
@@ -54,16 +58,6 @@ enum sButtonSignals {
 // ----	Module-level Variables ------------------------------------------------
 // ========================================================================== {
 
-// declare sans header the simulated "hardware" buttons belonging to the UI panel.
-extern GObject *btn0;
-extern GObject *btn1;
-extern GObject *btn2;
-extern GObject *btn3;
-extern GObject *btn4;
-extern GObject *btn5;
-extern GObject *btn6;
-extern GObject *btn7;
-
 static bool initialized = false;
 
 static int    argc = 0;
@@ -83,13 +77,21 @@ static GError *error		= NULL;
 // time handling from demo @ http://zetcode.com/gui/gtk2/gtkevents/
 //	this one designed to be called @ 1ms intervals. it is intended to simulate a 1ms heartbeat tic
 //	from a real exercise kit.
-#include "bdsched.h"
 static gboolean
 tmHeartbeat(GtkWidget *widget)
 {
 	UNUSED(widget);
-	tedlos_schedule(pOsEvqx);
-	return true;	// false
+//	cbHEARTBEAT_ACTION();	<<== defined as `tedlos_schedule(pOsEvqx)`
+	return (gboolean)true;
+}
+
+
+static gboolean
+gtkidle(gpointer user_data)
+{
+	UNUSED(user_data);
+//	cdIDLE_ACTION();		<<== tbd
+	return (gboolean)true;
 }
 
 
@@ -112,7 +114,7 @@ Cwsw_Board__Init(void)
 
 	/* Construct a GtkBuilder instance and load our UI description */
 	pUiPanel = gtk_builder_new();
-	if(gtk_builder_add_from_file(pUiPanel, "../../app/board.ui", &error) == 0)
+	if(gtk_builder_add_from_file(pUiPanel, "../../cwsw_cfg/bsp/gtkboard.ui", &error) == 0)
 	{
 		g_printerr("Error loading file: %s\n", error->message);
 		g_clear_error(&error);
@@ -124,101 +126,29 @@ Cwsw_Board__Init(void)
 	pWindow = gtk_builder_get_object (pUiPanel, "GTK_Board");		// run-time association, must match "ID" field.
 	if(pWindow)
 	{
-		extern void cbUiButtonPressed(GtkWidget *widget, gpointer data);
-		extern void cbUiButtonReleased(GtkWidget *widget, gpointer data);
-		extern void cbButtonClicked(GtkWidget *widget, gpointer data);
+		extern bool di_button_init(GtkBuilder *pUiPanel);
 
 		// make the "x" in the window upper-right corner close the window
 		g_signal_connect(pWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 		btnQuit = gtk_builder_get_object(pUiPanel, "btnQuit");
 		if(!btnQuit)	{ bad_init = true; }
 
-		if(!bad_init)		// connect quite, get handle for button 0
+		if(!bad_init)		// connect quit, get handles for buttons
 		{
 			// make the quit button an alias for the "X"
 			g_signal_connect(btnQuit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
-			/* we want button-press and button-release events. for convenience and exploration, we'll also
-			 * capture the click event.
-			 */
-			btn0 = gtk_builder_get_object(pUiPanel, "btn0");// run-time association w/ "ID" field in UI
-			if(!btn0)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn0, get handle for button 1
-		{
-			g_signal_connect(btn0, "clicked",	G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn0, "pressed",	G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn0, "released",	G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn1 = gtk_builder_get_object(pUiPanel, "btn1");
-			if(!btn1)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn1, get handle for button 2
-		{
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn2 = gtk_builder_get_object(pUiPanel, "btn2");
-			if(!btn2)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn2, get handle for button 3
-		{
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn3 = gtk_builder_get_object(pUiPanel, "btn3");
-			if(!btn3)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn3, get handle for button 4
-		{
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn4 = gtk_builder_get_object(pUiPanel, "btn4");
-			if(!btn4)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn4, get handle for button 5
-		{
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn5 = gtk_builder_get_object(pUiPanel, "btn5");
-			if(!btn5)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn5, get handle for button 6
-		{
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn6 = gtk_builder_get_object(pUiPanel, "btn6");
-			if(!btn6)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn6, get handle for button 7
-		{
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn7 = gtk_builder_get_object(pUiPanel, "btn7");
-			if(!btn7)	{ bad_init = true; }
+			bad_init = di_button_init(pUiPanel);
 		}
 
 		if(!bad_init)		// set up 1ms heartbeat
 		{
-			g_timeout_add(tmr1ms, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);
+			g_timeout_add(1, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
 		}
+
+		// set up idle callback
+	    g_idle_add (gtkidle, NULL);
+
 	}
 
 	if(bad_init)

@@ -20,7 +20,7 @@
 #include <stdbool.h>		/* bool */
 
 // ----	Project Headers -------------------------
-#include "tedlos.h"
+//#include "tedlos.h"
 #include <gtk/gtk.h>
 
 // ----	Module Headers --------------------------

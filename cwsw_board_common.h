@@ -25,6 +25,7 @@ extern "C" {
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
+#include "cwsw_lib.h"	/* kErr_Lib_NoError */
 
 // ----	Module Headers --------------------------
 
