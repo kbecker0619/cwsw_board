@@ -95,7 +95,7 @@ enum { bd_gtk };		/* Component ID for Event Queue */
 /** Target for `SET(kBoardLed1, kLogicalOff);`
  *	This function is equivalent to an arch-layer function that directly writes to the ports that
  *	drive the output "LEDn".
- *	@param [in]	onoff	On or off indication. In this implementation, there is no notion of "tristate".
+ *	@param [in]	onoff	On or off indication. In this implementation, there is no notion of "tristate" or degree of "on-ness".
  *	@note This is a "local" API, not designed to work across components.
  *	@{
  */

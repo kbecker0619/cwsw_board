@@ -63,6 +63,12 @@ GObject *btn5		= NULL;
 GObject *btn6		= NULL;
 GObject *btn7		= NULL;
 
+/** Event queue to which button events will be posted.
+ *	Nothing (at the moment) in this module directly uses this variable, but this button component
+ *	"owns" the queue, and it is shared to the components (such as the SME) that need to post.
+ */
+tEvQ_QueueCtrlEx BtnQ = NULL;
+
 
 // ============================================================================
 // ----	Private Functions -----------------------------------------------------
@@ -201,7 +207,7 @@ di_read_next_button_input_bit(uint32_t idx)
 }
 
 bool
-di_button_init(GtkBuilder *pUiPanel)
+di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX)
 {
 	bool bad_init = false;
 
@@ -280,6 +286,8 @@ di_button_init(GtkBuilder *pUiPanel)
 		btn7 = gtk_builder_get_object(pUiPanel, "btn7");
 		if(!btn7)	{ bad_init = true; }
 	}
+
+	BtnQ = pEvQX;
 
 	return bad_init;
 }

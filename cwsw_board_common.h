@@ -25,7 +25,8 @@ extern "C" {
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
-#include "cwsw_lib.h"	/* kErr_Lib_NoError */
+#include "cwsw_lib.h"			/* kErr_Lib_NoError */
+#include "cwsw_evqueue_ex.h"	/* tEvQ_QueueCtrlEx */
 
 // ----	Module Headers --------------------------
 
@@ -66,10 +67,13 @@ enum eErrorCodes_Board {
  *	necessary HW, to prepare for the task function's 1st call (once the
  *	scheduler has been started).
  *
- * This function "connects" the board to the CPU.
- * It knows nothing about the application.
+ *	This function "connects" the board to the CPU.
+ *	It knows nothing about the application.
  *
  *	This function shall be called before the main scheduler is started.
+ *
+ * 	This init function breaks with the normal CWSW initialization signature, in that we take a
+ * 	paramter.
  *
  *	As general guidance, the CWSW Library component should have been initialized
  *	before this function is called (since this module depends on the library),
@@ -81,9 +85,10 @@ enum eErrorCodes_Board {
  *	In the dependency tree, this module sits at the "between" the architecture
  *	and services and application, excepting for calls into support libraries.
  *
+ * 	@param[in] EvQ	The event queue used for button events and OS timer events.
  *	@returns error code, or 0 for no problem (i.e., success).
  */
-extern uint16_t Cwsw_Board__Init(void);
+extern uint16_t Cwsw_Board__Init(ptEvQ_QueueCtrlEx pEvQX);
 
 /** Target for Get(Cwsw_Board, Initialized) interface */
 extern bool 	Cwsw_Board__Get_Initialized(void);

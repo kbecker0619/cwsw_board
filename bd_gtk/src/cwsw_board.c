@@ -101,19 +101,18 @@ gtkidle(gpointer user_data)
 
 // ---- General Functions --------------------------------------------------- {
 uint16_t
-Cwsw_Board__Init(void)
+Cwsw_Board__Init(ptEvQ_QueueCtrlEx pEvQX)
 {
 	bool bad_init = false;
-	if(!Get(Cwsw_Arch, Initialized))
-	{
-		return kErr_Lib_NotInitialized;
-	}
+	if(!Get(Cwsw_Arch, Initialized)) { return kErr_Lib_NotInitialized; }
 
 	// initialize gtk lib. in this environment, no command line options are available.
 	gtk_init(&argc, &argv);
 
 	/* Construct a GtkBuilder instance and load our UI description */
 	pUiPanel = gtk_builder_new();
+
+	/* Note: hard-coded location of UI panel. relative to the location of the Eclipse project. */
 	if(gtk_builder_add_from_file(pUiPanel, "../../cwsw_cfg/bsp/gtkboard.ui", &error) == 0)
 	{
 		g_printerr("Error loading file: %s\n", error->message);
@@ -126,7 +125,8 @@ Cwsw_Board__Init(void)
 	pWindow = gtk_builder_get_object (pUiPanel, "GTK_Board");		// run-time association, must match "ID" field.
 	if(pWindow)
 	{
-		extern bool di_button_init(GtkBuilder *pUiPanel);
+		// ok, good, we have a window. now initialize the contents.
+		extern bool di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX);
 
 		// make the "x" in the window upper-right corner close the window
 		g_signal_connect(pWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -138,7 +138,7 @@ Cwsw_Board__Init(void)
 			// make the quit button an alias for the "X"
 			g_signal_connect(btnQuit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
-			bad_init = di_button_init(pUiPanel);
+			bad_init = di_button_init(pUiPanel, pEvQX);
 		}
 
 		if(!bad_init)		// set up 1ms heartbeat
@@ -156,6 +156,8 @@ Cwsw_Board__Init(void)
 		gtk_widget_destroy((GtkWidget *)pWindow);
 		return kErr_Bsp_InitFailed;
 	}
+
+	TODO: SET BUTTON QUEUE HERE
 
 	SET(kBoardLed1, kLogicalOff);
 	SET(kBoardLed2, kLogicalOff);
