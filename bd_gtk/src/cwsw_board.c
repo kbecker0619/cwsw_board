@@ -107,62 +107,76 @@ Cwsw_Board__Init(ptEvQ_QueueCtrlEx pEvQX)
 	if(!Get(Cwsw_Arch, Initialized)) { return kErr_Lib_NotInitialized; }
 
 	// initialize gtk lib. in this environment, no command line options are available.
-	gtk_init(&argc, &argv);
+	do {
+		gtk_init(&argc, &argv);
 
-	/* Construct a GtkBuilder instance and load our UI description */
-	pUiPanel = gtk_builder_new();
+		/* Construct a GtkBuilder instance and load our UI description */
+		pUiPanel = gtk_builder_new();
 
-	/* Note: hard-coded location of UI panel. relative to the location of the Eclipse project. */
-	if(gtk_builder_add_from_file(pUiPanel, "../../cwsw_cfg/bsp/gtkboard.ui", &error) == 0)
-	{
-		g_printerr("Error loading file: %s\n", error->message);
-		g_clear_error(&error);
-		return kErr_Bsp_InitFailed;
-	}
+		/* Note: hard-coded location of UI panel. relative to the location of the Eclipse project. */
+		if(gtk_builder_add_from_file(pUiPanel, "../../cwsw_cfg/bsp/gtkboard.ui", &error) == 0)
+		{
+			g_printerr("Error loading file: %s\n", error->message);
+			g_clear_error(&error);
+			return kErr_Bsp_InitFailed;
+		}
 
-	/* Connect signal handlers to the constructed widgets. */
-	// here & below: reaction to bad "connection" call from https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-destroy
-	pWindow = gtk_builder_get_object (pUiPanel, "GTK_Board");		// run-time association, must match "ID" field.
-	if(pWindow)
-	{
-		// ok, good, we have a window. now initialize the contents.
-		extern bool di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX);
+		/* Connect signal handlers to the constructed widgets. */
+		// here & below: reaction to bad "connection" call from https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-destroy
+		pWindow = gtk_builder_get_object (pUiPanel, "GTK_Board");		// run-time association, must match "ID" field.
+		bad_init = (!pWindow);
+	} while(0);
+
+	if(!bad_init) {		// init DI generally
+		// note: conceptually, this could be "remote" DI, such as external expansion IC or ASIC core communicating via SPI
 
 		// make the "x" in the window upper-right corner close the window
 		g_signal_connect(pWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 		btnQuit = gtk_builder_get_object(pUiPanel, "btnQuit");
-		if(!btnQuit)	{ bad_init = true; }
-
-		if(!bad_init)		// connect quit, get handles for buttons
+		if(btnQuit)
 		{
 			// make the quit button an alias for the "X"
 			g_signal_connect(btnQuit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
-
-			bad_init = di_button_init(pUiPanel, pEvQX);
 		}
-
-		if(!bad_init)		// set up 1ms heartbeat
+		else
 		{
-			g_timeout_add(1, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
+			bad_init = true;
 		}
+	}
+
+	if(!bad_init) {		// init buttons (built on top of DI)
+		extern bool di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX);
+		bad_init = di_button_init(pUiPanel, pEvQX);
+	}
+
+	if(!bad_init) {		// init DO generally
+		// note: conceptually, this could be "remote" DO, such as external expansion IC or ASIC core communicating via SPI
+	}
+
+	if(!bad_init) {		// init LEDs (built on top of DI, may have other attributes such as intensity or color)
+	}
+
+	if(!bad_init) {		// init timers
+		// set up 1ms heartbeat
+		g_timeout_add(1, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
 
 		// set up idle callback
 	    g_idle_add (gtkidle, NULL);
-
 	}
 
-	if(bad_init)
-	{
+	if(bad_init) {		// early exit if failure seen
 		gtk_widget_destroy((GtkWidget *)pWindow);
 		return kErr_Bsp_InitFailed;
 	}
 
-	TODO: SET BUTTON QUEUE HERE
+	do {	// init things that "cannot" fail
+//		TODO: SET BUTTON QUEUE HERE
 
-	SET(kBoardLed1, kLogicalOff);
-	SET(kBoardLed2, kLogicalOff);
-	SET(kBoardLed3, kLogicalOff);
-	SET(kBoardLed4, kLogicalOff);
+		SET(kBoardLed1, kLogicalOff);
+		SET(kBoardLed2, kLogicalOff);
+		SET(kBoardLed3, kLogicalOff);
+		SET(kBoardLed4, kLogicalOff);
+	} while(0);
 
 	initialized = true;
 	return kErr_Bsp_NoError;

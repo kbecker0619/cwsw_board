@@ -1,10 +1,10 @@
 /** @file
- *	@brief	One-sentence short description of file.
+ *	@brief	Board-specific button-reading functions.
  *
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Created on: Jun 29, 2020
+ *	Created on: Jun 28, 2020
  *	@author Kevin L. Becker
  */
 
@@ -16,15 +16,30 @@
 #include <stdbool.h>
 
 // ----	Project Headers -------------------------
+//#include "tedlos.h"				/* event queue used by this SME */
+//#include "cwsw_sme.h"
 
 // ----	Module Headers --------------------------
-#include "cwsw_board.h"	/* pull in the GTK info */
+#include "cwsw_board.h"
 
 
 // ============================================================================
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
 
+// States for this State Machine.
+//typedef enum eSmStates {
+//	kStateStart,
+//	kStateReleased,
+//	kStateDebouncePress,
+//	kStatePressed,
+//	kStateDebounceRelease
+//} tSmStates;
+
+/// Within this yet-experimental model, we're "noise-ifying" the clean button signals we get from
+/// the GTK library in a very modest effort to simulate the button bounce that might be seen in a
+/// real physical button.
+/// @{
 //  consecutive 1s: 	    8          7        6       5      4     3   2  1 (meaningless noise to fill 64 bits)
 //	noisy input:		1111 1111 0111 1111 0111 1110 1111 1011 1101 1101 1010 0000 0011 1111 0000 0001
 #define noisypatterna	0xFF7F7EFBDDA03F01
@@ -37,6 +52,7 @@
 //						1111 1111 1001
 #define cleanpatterna	0xFF9
 #define cleanpatternb	~cleanpatterna
+///	@}
 
 
 // ============================================================================
@@ -67,11 +83,11 @@ GObject *btn7		= NULL;
  *	Nothing (at the moment) in this module directly uses this variable, but this button component
  *	"owns" the queue, and it is shared to the components (such as the SME) that need to post.
  */
-tEvQ_QueueCtrlEx BtnQ = NULL;
+ptEvQ_QueueCtrlEx pBtnQ = NULL;
 
 
 // ============================================================================
-// ----	Private Functions -----------------------------------------------------
+// ----	State Functions -------------------------------------------------------
 // ============================================================================
 
 // ============================================================================
@@ -287,7 +303,7 @@ di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX)
 		if(!btn7)	{ bad_init = true; }
 	}
 
-	BtnQ = pEvQX;
+	pBtnQ = pEvQX;
 
 	return bad_init;
 }

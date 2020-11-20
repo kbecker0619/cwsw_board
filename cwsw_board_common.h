@@ -73,7 +73,7 @@ enum eErrorCodes_Board {
  *	This function shall be called before the main scheduler is started.
  *
  * 	This init function breaks with the normal CWSW initialization signature, in that we take a
- * 	paramter.
+ * 	parameter.
  *
  *	As general guidance, the CWSW Library component should have been initialized
  *	before this function is called (since this module depends on the library),
@@ -85,7 +85,7 @@ enum eErrorCodes_Board {
  *	In the dependency tree, this module sits at the "between" the architecture
  *	and services and application, excepting for calls into support libraries.
  *
- * 	@param[in] EvQ	The event queue used for button events and OS timer events.
+ * 	@param[in] pEvQX	The event queue used for button events and OS timer events.
  *	@returns error code, or 0 for no problem (i.e., success).
  */
 extern uint16_t Cwsw_Board__Init(ptEvQ_QueueCtrlEx pEvQX);
