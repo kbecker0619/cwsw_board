@@ -1,10 +1,10 @@
 /** @file
- *	@brief	Board-specific button-reading functions.
+ *	@brief	One-sentence short description of file.
  *
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
- *	Created on: Jun 28, 2020
+ *	Created on: Jun 29, 2020
  *	@author Kevin L. Becker
  */
 
@@ -15,25 +15,13 @@
 // ----	System Headers --------------------------
 
 // ----	Project Headers -------------------------
-#include "tedlos.h"				/* event queue used by this SME */
-#include "cwsw_sme.h"
 
 // ----	Module Headers --------------------------
-#include "cwsw_board.h"
 
 
 // ============================================================================
 // ----	Constants -------------------------------------------------------------
 // ============================================================================
-
-/// States for this State Machine.
-typedef enum eSmStates {
-	kStateStart,
-	kStateReleased,
-	kStateDebouncePress,
-	kStatePressed,
-	kStateDebounceRelease
-} tSmStates;
 
 // ============================================================================
 // ----	Type Definitions ------------------------------------------------------
@@ -48,9 +36,10 @@ typedef enum eSmStates {
 // ============================================================================
 
 // ============================================================================
-// ----	State Functions -------------------------------------------------------
+// ----	Private Functions -----------------------------------------------------
 // ============================================================================
 
 // ============================================================================
 // ----	Public Functions ------------------------------------------------------
 // ============================================================================
+

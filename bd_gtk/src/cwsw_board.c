@@ -1,6 +1,10 @@
 /** @file
  *	@brief	Board support for the GTK "board".
  *
+ *	In the same way my Microchip MZ demo board, or my NXP 5748G demo board, or my STI demo board, all
+ *	have some general purpose buttons, rheostats, LEDs, and displays, so here does the GTK "board" have
+ *	a panel that has 8 buttons, 8 "LEDs", and a text box.
+ *
  *	\copyright
  *	Copyright (c) 2020 Kevin L. Becker. All rights reserved.
  *
@@ -54,16 +58,6 @@ enum sButtonSignals {
 // ----	Module-level Variables ------------------------------------------------
 // ========================================================================== {
 
-// declare sans header the simulated "hardware" buttons belonging to the UI panel.
-extern GObject *btn0;
-extern GObject *btn1;
-extern GObject *btn2;
-extern GObject *btn3;
-extern GObject *btn4;
-extern GObject *btn5;
-extern GObject *btn6;
-extern GObject *btn7;
-
 static bool initialized = false;
 
 static int    argc = 0;
@@ -73,6 +67,7 @@ static char **argv = NULL;
 static GObject *btnQuit		= NULL;
 
 static GtkBuilder *pUiPanel	= NULL;
+/// One instance of a GTK "Window" for this board, and hence, for this application.
 static GObject *pWindow		= NULL;
 static GError *error		= NULL;
 
@@ -84,12 +79,23 @@ static GError *error		= NULL;
 //	this one designed to be called @ 1ms intervals. it is intended to simulate a 1ms heartbeat tic
 //	from a real exercise kit.
 #include "bdsched.h"
+#include "tedlos.h"
 static gboolean
 tmHeartbeat(GtkWidget *widget)
 {
 	UNUSED(widget);
+//	cbHEARTBEAT_ACTION();	<<== defined as `tedlos_schedule(pOsEvqx)`
 	tedlos_schedule(pOsEvqx);
-	return true;	// false
+	return (gboolean)true;
+}
+
+
+static gboolean
+gtkidle(gpointer user_data)
+{
+	UNUSED(user_data);
+//	cdIDLE_ACTION();		<<== tbd
+	return (gboolean)true;
 }
 
 
@@ -98,21 +104,21 @@ tmHeartbeat(GtkWidget *widget)
 // ========================================================================== {
 
 // ---- General Functions --------------------------------------------------- {
-uint16_t
-Cwsw_Board__Init(void)
-{
-	bool bad_init = false;
-	if(!Get(Cwsw_Arch, Initialized))
-	{
-		return kErr_Lib_NotInitialized;
-	}
 
-	// initialize gtk lib. in this environment, no command line options are available.
+uint16_t
+BSP_Core__Init(void)
+{
+	if(!Get(Cwsw_Arch, Initialized)) { return kErr_Lib_NotInitialized; }
+
+	// initialize gtk lib.
+	//	in this environment, no command line options are available.
 	gtk_init(&argc, &argv);
 
 	/* Construct a GtkBuilder instance and load our UI description */
 	pUiPanel = gtk_builder_new();
-	if(gtk_builder_add_from_file(pUiPanel, "../../app/board.ui", &error) == 0)
+
+	/* Note: hard-coded location of UI panel. relative to the location of the Eclipse project. */
+	if(gtk_builder_add_from_file(pUiPanel, "../../cwsw_cfg/bsp/gtkboard.ui", &error) == 0)
 	{
 		g_printerr("Error loading file: %s\n", error->message);
 		g_clear_error(&error);
@@ -122,115 +128,98 @@ Cwsw_Board__Init(void)
 	/* Connect signal handlers to the constructed widgets. */
 	// here & below: reaction to bad "connection" call from https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-destroy
 	pWindow = gtk_builder_get_object (pUiPanel, "GTK_Board");		// run-time association, must match "ID" field.
-	if(pWindow)
+	return (!pWindow);
+}
+
+uint16_t
+BSP_DI__Init(void)
+{
+	// note: conceptually, this could be "remote" DI, such as external expansion IC or ASIC core communicating via SPI
+
+	if(!pWindow) { return kErr_Lib_NotInitialized; }
+
+	// make the "x" in the window upper-right corner close the window
+	g_signal_connect(pWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	btnQuit = gtk_builder_get_object(pUiPanel, "btnQuit");
+	if(btnQuit)
 	{
-		extern void cbUiButtonPressed(GtkWidget *widget, gpointer data);
-		extern void cbUiButtonReleased(GtkWidget *widget, gpointer data);
-		extern void cbButtonClicked(GtkWidget *widget, gpointer data);
-
-		// make the "x" in the window upper-right corner close the window
-		g_signal_connect(pWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-		btnQuit = gtk_builder_get_object(pUiPanel, "btnQuit");
-		if(!btnQuit)	{ bad_init = true; }
-
-		if(!bad_init)		// connect quite, get handle for button 0
-		{
-			// make the quit button an alias for the "X"
-			g_signal_connect(btnQuit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
-
-			/* we want button-press and button-release events. for convenience and exploration, we'll also
-			 * capture the click event.
-			 */
-			btn0 = gtk_builder_get_object(pUiPanel, "btn0");// run-time association w/ "ID" field in UI
-			if(!btn0)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn0, get handle for button 1
-		{
-			g_signal_connect(btn0, "clicked",	G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn0, "pressed",	G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn0, "released",	G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn1 = gtk_builder_get_object(pUiPanel, "btn1");
-			if(!btn1)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn1, get handle for button 2
-		{
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn1, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn2 = gtk_builder_get_object(pUiPanel, "btn2");
-			if(!btn2)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn2, get handle for button 3
-		{
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn2, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn3 = gtk_builder_get_object(pUiPanel, "btn3");
-			if(!btn3)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn3, get handle for button 4
-		{
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn3, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn4 = gtk_builder_get_object(pUiPanel, "btn4");
-			if(!btn4)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn4, get handle for button 5
-		{
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn4, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn5 = gtk_builder_get_object(pUiPanel, "btn5");
-			if(!btn5)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn5, get handle for button 6
-		{
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn5, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn6 = gtk_builder_get_object(pUiPanel, "btn6");
-			if(!btn6)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// connect btn6, get handle for button 7
-		{
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbButtonClicked), NULL);
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonPressed), NULL);
-			g_signal_connect(btn6, "clicked", G_CALLBACK(cbUiButtonReleased), NULL);
-
-			btn7 = gtk_builder_get_object(pUiPanel, "btn7");
-			if(!btn7)	{ bad_init = true; }
-		}
-
-		if(!bad_init)		// set up 1ms heartbeat
-		{
-			g_timeout_add(tmr1ms, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);
-		}
+		// make the quit button an alias for the "X"
+		g_signal_connect(btnQuit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
+		return kErr_Bsp_NoError;
 	}
 
-	if(bad_init)
-	{
+	return kErr_Bsp_InitFailed;
+}
+
+uint16_t
+BSP_DO__Init(void)
+{
+	// note: conceptually, this could be "remote" DI, such as external expansion IC or ASIC core communicating via SPI
+
+	// on the GTK board, you don't need the "Quit" button connected in order to do output.
+	//	t'uther way to view this is, we allow the DO feature to be initialized before the DI
+	//	feature, but there must be a window already.
+	if(!pWindow) { return kErr_Lib_NotInitialized; }
+
+	return kErr_Bsp_NoError;
+}
+
+uint16_t
+BSP_Timers__Init(void)
+{
+	return kErr_Bsp_NoError;
+}
+
+uint16_t
+BSP_DI_Buttons__Init(ptEvQ_QueueCtrlEx pEvQX)
+{
+	extern bool di_button_init(GtkBuilder *pUiPanel, ptEvQ_QueueCtrlEx pEvQX);
+	if(!btnQuit) { return kErr_Lib_NotInitialized; }
+	return di_button_init(pUiPanel, pEvQX);
+}
+
+uint16_t
+Cwsw_Board__Init(void)
+{
+	bool bad_init = false;
+
+	do {
+	} while(0);
+
+	if(!bad_init) {		// init DI generally
+	}
+
+	if(!bad_init) {		// init buttons (built on top of DI)
+	}
+
+	if(!bad_init) {		// init DO generally
+		// note: conceptually, this could be "remote" DO, such as external expansion IC or ASIC core communicating via SPI
+	}
+
+	if(!bad_init) {		// init LEDs (built on top of DI, may have other attributes such as intensity or color)
+	}
+
+	if(!bad_init) {		// init timers
+		// set up 1ms heartbeat
+		g_timeout_add(1, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
+
+		// set up idle callback
+	    g_idle_add (gtkidle, NULL);
+	}
+
+	if(bad_init) {		// early exit if failure seen
 		gtk_widget_destroy((GtkWidget *)pWindow);
 		return kErr_Bsp_InitFailed;
 	}
 
-	SET(kBoardLed1, kLogicalOff);
-	SET(kBoardLed2, kLogicalOff);
-	SET(kBoardLed3, kLogicalOff);
-	SET(kBoardLed4, kLogicalOff);
+	do {	// init things that "cannot" fail
+//		TODO: SET BUTTON QUEUE HERE
+
+		SET(kBoardLed1, kLogicalOff);
+		SET(kBoardLed2, kLogicalOff);
+		SET(kBoardLed3, kLogicalOff);
+		SET(kBoardLed4, kLogicalOff);
+	} while(0);
 
 	initialized = true;
 	return kErr_Bsp_NoError;
