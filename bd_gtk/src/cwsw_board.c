@@ -81,7 +81,7 @@ static GError *error		= NULL;
 #include "bdsched.h"
 #include "tedlos.h"
 static gboolean
-tmHeartbeat(GtkWidget *widget)
+bspTmrHeartbeat(GtkWidget *widget)
 {
 	UNUSED(widget);
 //	cbHEARTBEAT_ACTION();	<<== defined as `tedlos_schedule(pOsEvqx)`
@@ -91,7 +91,7 @@ tmHeartbeat(GtkWidget *widget)
 
 
 static gboolean
-gtkidle(gpointer user_data)
+bspTmrIdle(gpointer user_data)
 {
 	UNUSED(user_data);
 //	cdIDLE_ACTION();		<<== tbd
@@ -154,11 +154,11 @@ BSP_DI__Init(void)
 uint16_t
 BSP_DO__Init(void)
 {
-	// note: conceptually, this could be "remote" DI, such as external expansion IC or ASIC core communicating via SPI
+	// note: conceptually, this could be "remote" DO, such as external expansion IC or ASIC core communicating via SPI
 
 	// on the GTK board, you don't need the "Quit" button connected in order to do output.
 	//	t'uther way to view this is, we allow the DO feature to be initialized before the DI
-	//	feature, but there must be a window already.
+	//	feature, but there must be a window already (BSP Core must already be initialized).
 	if(!pWindow) { return kErr_Lib_NotInitialized; }
 
 	return kErr_Bsp_NoError;
@@ -167,6 +167,14 @@ BSP_DO__Init(void)
 uint16_t
 BSP_Timers__Init(void)
 {
+	if(!pWindow) { return kErr_Lib_NotInitialized; }
+
+	// set up 1ms heartbeat
+	// in GTK, you only need the return value, if you want to cancel a timer. the ID returned here is used by the cancel function.
+	(void)g_timeout_add(1, bspTmrHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
+
+	// set up idle callback
+    (void)g_idle_add(bspTmrIdle, NULL);
 	return kErr_Bsp_NoError;
 }
 
@@ -183,28 +191,7 @@ Cwsw_Board__Init(void)
 {
 	bool bad_init = false;
 
-	do {
-	} while(0);
-
-	if(!bad_init) {		// init DI generally
-	}
-
-	if(!bad_init) {		// init buttons (built on top of DI)
-	}
-
-	if(!bad_init) {		// init DO generally
-		// note: conceptually, this could be "remote" DO, such as external expansion IC or ASIC core communicating via SPI
-	}
-
-	if(!bad_init) {		// init LEDs (built on top of DI, may have other attributes such as intensity or color)
-	}
-
 	if(!bad_init) {		// init timers
-		// set up 1ms heartbeat
-		g_timeout_add(1, (GSourceFunc) tmHeartbeat, (gpointer)pWindow);		/* hard-coded 1 ms tic rate */
-
-		// set up idle callback
-	    g_idle_add (gtkidle, NULL);
 	}
 
 	if(bad_init) {		// early exit if failure seen
